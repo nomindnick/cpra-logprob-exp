@@ -247,7 +247,12 @@ are reproducible and resumable.
 
 ## 12. Open questions
 
-- Which backend is primary? (Decide after phase 1.)
+- ~~Which backend is primary?~~ Ollama (phase 1). Backend comparison is a
+  phase 4 sub-experiment: same model, same pairs through `llama-server`
+  (less per-call overhead, `--parallel` batching) and vLLM (nightly ROCm
+  build exists on this machine; gfx1151 is visible to ROCm). If the gap is
+  large that is a finding; if small, it validates Ollama as the practical
+  choice for an agency IT shop.
 - Email truncation: cap at N tokens, or drop over-length emails in phase 1?
   Proposed: cap at ~2k tokens of body, log truncation rate.
 - Should the request be passed verbatim or lightly normalized (strip
