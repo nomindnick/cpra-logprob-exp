@@ -1,0 +1,57 @@
+{
+ "pretty_id": "24-409",
+ "request_text": "<p><strong>Updated request scope as of 5/17/24 refinement sent by Mr.Small:</strong></p><p>&nbsp;</p><p>We have put some thought into search restrictions and terms and here is what we would suggest:</p><p>&nbsp;</p><p>(1) total time range of January 1, 2023 through July 31, 2023</p><p>(2) Anything that includes Juli Beth Hinds, Dr. Amy Lerner, urban studies and planning (USP), global policy &amp; strategy (GPS), <strong>UCSD in conjunction with any of those terms</strong></p><p>(3) Anything related to the regional water equity report or RDF</p><p>(4) Anything containing a reference to \"Juli Beth Hinds, Dr Amy Lerner,  Geosyntec, USP, GPS, or the RWER or RDF\", <strong>UCSD in conjunction with any of those terms</strong> sent to or from \"Elise Ruiz, anyone at Murakawa Communications, anyone at Geosyntec including but not limited to Ken Susillo, Megan Otto, Stephanie Zinn; and anyone at the County including but not limited to Stephanie Gaines, Crystal Benham, Todd Snyder, Sarah Agassi, Eden Brukman, and Murtaza Baxamusa\"</p><p>&nbsp;</p><p><strong>Original Request:</strong></p><p>&nbsp;</p><p>To Whom it may Concern:</p><p>I am writing on behalf of my client Juli Beth Hinds. On behalf of Ms. Hinds, please consider this a formal request pursuant to California Public Records Act, Government Code \u00a76250 et seq. for copies of all DOCUMENTS of the County of San Diego Land Use &amp; Environment Group that reference or relate to: Juli Beth Hinds; the Department of Urban Studies and Planning at the University of California San Diego; or Nathan Fletcher. (\"DOCUMENTS\" as used herein, shall be defined to mean any ''writing'' as that term is defined in Evidence Code section 250, including, but not limited to, correspondence, emails, texts, communications of any kind, recordings, tapes, computer print-outs, records, slides, photographs, notes, working papers, written analyses, memoranda, plans, telegraphs, telexes and transcriptions, electronic data, and notes or memoranda made by any telephone communications.) This request encompasses all DOCUMENTS dated or created between the dates of January 1, 2022 through the date of this letter.</p><p>I request delivery of these records to our firm's office, located at 402 W. Broadway, Suite 1270, San Diego, CA 92101, or we can arrange to pick them up at a reasonable location designated by the County.</p><br><p>Thank you for your attention to this matter.</p>",
+ "request_state": "Closed",
+ "visibility": "published",
+ "request_visibility": "Published",
+ "request_due_date": null,
+ "request_submit_type": "Email",
+ "request_date": "April 16, 2024",
+ "anticipated_fulfilled_at": null,
+ "expiration_date": null,
+ "exempt_from_retention": false,
+ "exempt_documents_from_retention": false,
+ "department_names": "Clerk of the Board of Supervisors (COB), Parks & Recreation (DPR), Planning & Development Services (PDS), Department of Public Works (DPW)",
+ "departments": [
+  {
+   "id": 20229,
+   "name": "Clerk of the Board of Supervisors (COB)",
+   "poc_id": 1059897
+  },
+  {
+   "id": 20260,
+   "name": "Parks & Recreation (DPR)",
+   "poc_id": 1313731
+  },
+  {
+   "id": 20261,
+   "name": "Planning & Development Services (PDS)",
+   "poc_id": 1059964
+  },
+  {
+   "id": 20267,
+   "name": "Department of Public Works (DPW)",
+   "poc_id": 1059983
+  }
+ ],
+ "request_staff_hours": null,
+ "request_staff_cost": null,
+ "custom_form_version": null,
+ "request_field_values": [],
+ "poc": {
+  "id": 1059897,
+  "email_or_name": "Clerk of the Board",
+  "has_tasks": false,
+  "undeliverable_email": false
+ },
+ "is_current_requester": false,
+ "requester": {
+  "id": 1379016,
+  "name_with_email": null,
+  "name": null,
+  "email": null,
+  "phone": null,
+  "company": null,
+  "address": null
+ }
+}

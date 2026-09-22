@@ -1,0 +1,36 @@
+{
+ "pretty_id": "25-5982",
+ "request_text": "<p>I wouldlike to receive all emails from the following SD county mailboxes:</p><p>Chiara.Leroy@sdcounty.ca.gov</p><p>Taryell.Simmons@sdcounty.ca.gov</p><p>Alejandra.Chaidez@sdcounty.ca.gov</p><p>Brandon.Lewis@sdcounty.ca.gov</p><p>Kasandra.MartinezTopete@sdcounty.ca.gov</p><p>Alexis.Ruiz@sdcounty.ca.gov</p><p>Taryell.Simmons@sdcounty.ca.gov</p><p></p><p>Thank contains any of the following keywords: CAIR, KARAMA, MAJDAL, GAZA</p><p>The search should cover: January 1st, 2023 to November 4th, 2025 </p><p>Thank you</p>",
+ "request_state": "Closed",
+ "visibility": "published",
+ "request_visibility": "Published",
+ "request_due_date": null,
+ "request_submit_type": null,
+ "request_date": "November  5, 2025",
+ "anticipated_fulfilled_at": null,
+ "expiration_date": null,
+ "exempt_from_retention": false,
+ "exempt_documents_from_retention": false,
+ "department_names": "",
+ "departments": [],
+ "request_staff_hours": null,
+ "request_staff_cost": null,
+ "custom_form_version": null,
+ "request_field_values": [],
+ "poc": {
+  "id": 1400191,
+  "email_or_name": "Melissa Bartolome",
+  "has_tasks": false,
+  "undeliverable_email": false
+ },
+ "is_current_requester": false,
+ "requester": {
+  "id": 1513037,
+  "name_with_email": null,
+  "name": null,
+  "email": null,
+  "phone": null,
+  "company": null,
+  "address": null
+ }
+}

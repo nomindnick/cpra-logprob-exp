@@ -1,15 +1,12 @@
-# data and run outputs (real productions are large; synthetic sets are regenerable)
-data/
+# raw downloaded productions (re-fetchable from data/manifests/ via scripts/acquire_*.py)
+data/raw/
+# sweep outputs
 runs/
-*.jsonl
-*.pdf
-*.eml
 
 # python
 __pycache__/
 *.pyc
 .venv/
-venv/
 .env
 
 # editors / os
