@@ -1,0 +1,18 @@
+# data and run outputs (real productions are large; synthetic sets are regenerable)
+data/
+runs/
+*.jsonl
+*.pdf
+*.eml
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store
