@@ -1,7 +1,8 @@
 # raw downloaded productions (re-fetchable from data/manifests/ via scripts/acquire_*.py)
 data/raw/
 # sweep outputs
-runs/
+runs/*/scores.jsonl
+runs/*.log
 
 # python
 __pycache__/
