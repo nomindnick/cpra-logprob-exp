@@ -24,6 +24,7 @@ import urllib.request
 
 OLLAMA = "http://localhost:11434"
 MAX_BODY_CHARS = 8000  # ~2k tokens; SPEC §12 truncation cap. Truncation is logged per row.
+NUM_CTX = 8192  # explicit context so no backend default silently truncates long prompts
 
 SYSTEM = (
     "You are a public records analyst for a California county. You will be shown a "
@@ -69,7 +70,7 @@ def score_one(model, request_text, email):
     r = post("/api/chat", {
         "model": model, "stream": False, "think": False,
         "logprobs": True, "top_logprobs": 20,
-        "options": {"num_predict": 1, "temperature": 0},
+        "options": {"num_predict": 1, "temperature": 0, "num_ctx": NUM_CTX},
         "messages": [{"role": "system", "content": SYSTEM},
                      {"role": "user", "content": USER_TEMPLATE.format(request=request_text, email=text)}],
     })
@@ -132,7 +133,7 @@ def main():
     json.dump({
         "model": a.model, "digest": digest, "details": details,
         "prompt_hash": prompt_hash, "system": SYSTEM, "user_template": USER_TEMPLATE,
-        "max_body_chars": MAX_BODY_CHARS, "concurrency": a.concurrency,
+        "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
         "ollama_version": json.load(urllib.request.urlopen(f"{OLLAMA}/api/version"))["version"],
     }, (out_dir / "run.json").open("w"), indent=1)
 
