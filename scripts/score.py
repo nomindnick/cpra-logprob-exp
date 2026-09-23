@@ -108,6 +108,8 @@ def main():
     ap.add_argument("--limit", type=int)
     ap.add_argument("--concurrency", type=int, default=1)
     ap.add_argument("--tag", help="run directory name (default: model name, ':' -> '_')")
+    ap.add_argument("--rescore-invalid", action="store_true",
+                    help="drop rows whose score is None or errored, then resume (backend glitches)")
     a = ap.parse_args()
 
     tag = a.tag or a.model.replace(":", "_").replace("/", "_")
@@ -122,7 +124,15 @@ def main():
     pairs = [json.loads(l) for l in open(a.pairs)]
     done = set()
     if out_path.exists():
-        done = {json.loads(l)["pair_id"] for l in out_path.open()}
+        existing = [json.loads(l) for l in out_path.open()]
+        if a.rescore_invalid:
+            valid = [r for r in existing if "error" not in r and r.get("score") is not None]
+            print(f"dropping {len(existing) - len(valid)} invalid rows", file=sys.stderr)
+            with out_path.open("w") as f:
+                for r in valid:
+                    f.write(json.dumps(r) + "\n")
+            existing = valid
+        done = {r["pair_id"] for r in existing}
     todo = [p for p in pairs if p["pair_id"] not in done]
     todo.sort(key=lambda p: (p["request_id"], p["email_id"]))  # group by request for prefix cache
     if a.limit:
