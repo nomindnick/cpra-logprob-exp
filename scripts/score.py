@@ -24,7 +24,8 @@ import urllib.request
 
 OLLAMA = "http://localhost:11434"
 MAX_BODY_CHARS = 8000  # ~2k tokens; SPEC §12 truncation cap. Truncation is logged per row.
-NUM_CTX = 8192  # explicit context so no backend default silently truncates long prompts
+NUM_CTX = 8192
+CANARY_EVERY = 100  # single-stream only: rescore a fixed pair and compare to its reference  # explicit context so no backend default silently truncates long prompts
 
 SYSTEM = (
     "You are a public records analyst for a California county. You will be shown a "
@@ -93,6 +94,30 @@ def score_one(model, request_text, email):
     }
 
 
+def unload(model):
+    """Force Ollama to drop the model (and its prompt cache); next call reloads it."""
+    try:
+        post("/api/generate", {"model": model, "keep_alive": 0})
+    except Exception:
+        pass
+    time.sleep(3)
+
+
+def score_guarded(model, request_text, email, reloads):
+    """score_one with reload-and-retry when the backend returns an undefined score
+    (Gemma 4 on this Ollama build: sticky prompt-cache corruption -> <unused*> tokens)."""
+    for attempt in range(3):
+        s = score_one(model, request_text, email)
+        if s["score"] is not None and s["residual"] < 0.5:
+            s["reloads"] = reloads[0]
+            return s
+        reloads[0] += 1
+        print(f"  invalid score (attempt {attempt+1}); unloading {model} and retrying", file=sys.stderr)
+        unload(model)
+    s["reloads"] = reloads[0]
+    return s
+
+
 def model_digest(model):
     for m in post("/api/tags", {}).get("models", []) if False else json.load(
             urllib.request.urlopen(f"{OLLAMA}/api/tags"))["models"]:
@@ -150,16 +175,33 @@ def main():
     print(f"{a.model}: {len(done)} already scored, {len(todo)} to go, concurrency {a.concurrency}",
           file=sys.stderr)
     # warm-up so model load time doesn't land on the first row
-    if todo:
-        score_one(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]])
+
+    reloads = [0]
+    canary = todo[0] if todo else None
+    canary_ref = [None]
+
+    def check_canary():
+        s = score_one(a.model, requests[canary["request_id"]], emails[canary["email_id"]])
+        if s["score"] is None:
+            return False
+        if canary_ref[0] is None:
+            canary_ref[0] = s["score"]
+            return True
+        return abs(s["score"] - canary_ref[0]) < 0.05
 
     def work(p):
         try:
-            s = score_one(a.model, requests[p["request_id"]], emails[p["email_id"]])
+            s = score_guarded(a.model, requests[p["request_id"]], emails[p["email_id"]], reloads)
         except Exception as ex:
             return {"pair_id": p["pair_id"], "error": f"{type(ex).__name__}: {ex}"}
         return {"pair_id": p["pair_id"], "request_id": p["request_id"], "email_id": p["email_id"],
                 "label": p["label"], "kind": p["kind"], **s}
+
+    # warm-up so model load time doesn't land on the first row; set the canary reference
+    if todo:
+        score_one(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]])
+        if not check_canary():
+            unload(a.model); check_canary()
 
     t_start = time.perf_counter()
     n = 0
@@ -167,14 +209,20 @@ def main():
         for row in ex.map(work, todo):
             f.write(json.dumps(row) + "\n")
             n += 1
+            if a.concurrency == 1 and n % CANARY_EVERY == 0 and not check_canary():
+                print(f"  canary drifted at {n}; unloading {a.model}", file=sys.stderr)
+                reloads[0] += 1
+                unload(a.model)
+                if not check_canary():
+                    print("  canary still drifted after reload", file=sys.stderr)
             if n % 200 == 0:
                 f.flush()
                 el = time.perf_counter() - t_start
                 print(f"  {n}/{len(todo)}  {el/n*1000:.0f} ms/pair  eta {(len(todo)-n)*el/n/60:.0f} min",
                       file=sys.stderr)
     el = time.perf_counter() - t_start
-    print(f"done: {n} pairs in {el/60:.1f} min ({el/max(n,1)*1000:.0f} ms/pair wall) -> {out_path}",
-          file=sys.stderr)
+    print(f"done: {n} pairs in {el/60:.1f} min ({el/max(n,1)*1000:.0f} ms/pair wall), "
+          f"{reloads[0]} model reloads -> {out_path}", file=sys.stderr)
 
 
 if __name__ == "__main__":
