@@ -1,0 +1,23 @@
+{
+ "model": "qwen3.5:9b",
+ "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+ "details": {
+  "parent_model": "",
+  "format": "gguf",
+  "family": "qwen35",
+  "families": [
+   "qwen35"
+  ],
+  "parameter_size": "9.7B",
+  "quantization_level": "Q4_K_M",
+  "context_length": 262144,
+  "embedding_length": 4096
+ },
+ "prompt_hash": "e2af823530584567",
+ "system": "You are a public records analyst for a California county. You will be shown a California Public Records Act (CPRA) request and one email from the county's email system. Decide whether the email is responsive to the request, meaning it is a record the request is asking for. Do not consider whether the email might be exempt from disclosure; that is a separate question. Answer with a single word: yes or no.",
+ "user_template": "CPRA request:\n{request}\n\nEmail:\n{email}\n\nIs this email responsive to the request? Answer yes or no.",
+ "max_body_chars": 8000,
+ "num_ctx": 8192,
+ "concurrency": 4,
+ "ollama_version": "0.32.14"
+}
