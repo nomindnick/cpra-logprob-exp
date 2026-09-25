@@ -2,6 +2,7 @@
 data/raw/
 # sweep outputs
 runs/*/scores.jsonl
+!runs/*_lat*/scores.jsonl
 runs/*.log
 
 # python
