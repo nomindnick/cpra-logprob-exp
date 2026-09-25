@@ -173,6 +173,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True)
     ap.add_argument("--pairs", default="data/dataset/pairs.jsonl")
+    ap.add_argument("--emails-dir", default="data/emails", help="directory of *.emails.jsonl / *.requests.jsonl")
+    ap.add_argument("--extra-emails", help="additional emails jsonl (e.g. data/golden/emails.jsonl)")
+    ap.add_argument("--roster", help="text file appended to request 25-3152's text (roster ablation)")
     ap.add_argument("--limit", type=int)
     ap.add_argument("--concurrency", type=int, default=1)
     ap.add_argument("--tag", help="run directory name (default: model name, ':' -> '_')")
@@ -187,10 +190,14 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "scores.jsonl"
 
-    emails = {e["id"]: e for p in pathlib.Path("data/emails").glob("*.emails.jsonl")
+    emails = {e["id"]: e for p in pathlib.Path(a.emails_dir).glob("*.emails.jsonl")
               for e in map(json.loads, p.open())}
-    requests = {r["request_id"]: r["request_text"] for p in pathlib.Path("data/emails").glob("*.requests.jsonl")
+    if a.extra_emails:
+        emails.update({e["id"]: e for e in map(json.loads, open(a.extra_emails))})
+    requests = {r["request_id"]: r["request_text"] for p in pathlib.Path(a.emails_dir).glob("*.requests.jsonl")
                 for r in map(json.loads, p.open())}
+    if a.roster:
+        requests["25-3152"] = requests["25-3152"] + "\n\n" + open(a.roster).read()
     pairs = [json.loads(l) for l in open(a.pairs)]
     done = set()
     if out_path.exists():
@@ -216,6 +223,7 @@ def main():
         "system": SYSTEM_JSON if a.mode == "json" else SYSTEM,
         "user_template": USER_TEMPLATE_JSON if a.mode == "json" else USER_TEMPLATE,
         "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
+        "pairs": a.pairs, "extra_emails": a.extra_emails, "roster": a.roster,
         "ollama_version": json.load(urllib.request.urlopen(f"{OLLAMA}/api/version"))["version"],
     }, (out_dir / "run.json").open("w"), indent=1)
 
