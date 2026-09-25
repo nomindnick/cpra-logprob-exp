@@ -40,6 +40,12 @@ USER_TEMPLATE = (
     "Email:\n{email}\n\n"
     "Is this email responsive to the request? Answer yes or no."
 )
+SYSTEM_JSON = SYSTEM.replace(
+    "Answer with a single word: yes or no.",
+    'Respond only with a JSON object: {"responsive": true or false, '
+    '"confidence": a number from 0 to 1, "reasoning": "two or three sentences"}')
+USER_TEMPLATE_JSON = USER_TEMPLATE.replace("Answer yes or no.", "Respond in JSON.")
+
 VARIANTS_YES = {"yes", " yes", "Yes", " Yes", "YES", " YES"}
 VARIANTS_NO = {"no", " no", "No", " No", "NO", " NO"}
 
@@ -118,6 +124,43 @@ def score_guarded(model, request_text, email, reloads):
     return s
 
 
+def score_json(model, request_text, email):
+    """The 2025 approach: generate a JSON verdict with self-reported confidence.
+    score = P(responsive) = confidence if responsive else 1 - confidence."""
+    text, truncated = render_email(email)
+    t0 = time.perf_counter()
+    r = post("/api/chat", {
+        "model": model, "stream": False, "think": False, "format": "json",
+        "options": {"num_predict": 300, "temperature": 0, "num_ctx": NUM_CTX},
+        "messages": [{"role": "system", "content": SYSTEM_JSON},
+                     {"role": "user", "content": USER_TEMPLATE_JSON.format(request=request_text, email=text)}],
+    })
+    wall = time.perf_counter() - t0
+    content = r["message"]["content"]
+    verdict = conf = None
+    try:
+        j = json.loads(content)
+        verdict = j.get("responsive")
+        if isinstance(verdict, str):
+            verdict = verdict.strip().lower() in ("true", "yes")
+        conf = float(j.get("confidence"))
+        conf = min(max(conf, 0.0), 1.0)
+    except Exception:
+        pass
+    score = None
+    if verdict is not None and conf is not None:
+        score = conf if verdict else 1.0 - conf
+    return {
+        "score": score, "verdict": verdict, "confidence": conf,
+        "raw": content[:600], "truncated": truncated,
+        "prompt_tokens": r.get("prompt_eval_count"), "gen_tokens": r.get("eval_count"),
+        "prefill_ms": r.get("prompt_eval_duration", 0) / 1e6,
+        "decode_ms": r.get("eval_duration", 0) / 1e6,
+        "total_ms": r.get("total_duration", 0) / 1e6,
+        "wall_ms": wall * 1000,
+    }
+
+
 def model_digest(model):
     for m in post("/api/tags", {}).get("models", []) if False else json.load(
             urllib.request.urlopen(f"{OLLAMA}/api/tags"))["models"]:
@@ -133,6 +176,8 @@ def main():
     ap.add_argument("--limit", type=int)
     ap.add_argument("--concurrency", type=int, default=1)
     ap.add_argument("--tag", help="run directory name (default: model name, ':' -> '_')")
+    ap.add_argument("--mode", choices=["logprob", "json"], default="logprob",
+                    help="json = generate a JSON verdict with self-reported confidence (2025 baseline)")
     ap.add_argument("--rescore-invalid", action="store_true",
                     help="drop rows whose score is None or errored, then resume (backend glitches)")
     a = ap.parse_args()
@@ -167,7 +212,9 @@ def main():
     prompt_hash = hashlib.sha256((SYSTEM + "\n" + USER_TEMPLATE).encode()).hexdigest()[:16]
     json.dump({
         "model": a.model, "digest": digest, "details": details,
-        "prompt_hash": prompt_hash, "system": SYSTEM, "user_template": USER_TEMPLATE,
+        "mode": a.mode, "prompt_hash": prompt_hash,
+        "system": SYSTEM_JSON if a.mode == "json" else SYSTEM,
+        "user_template": USER_TEMPLATE_JSON if a.mode == "json" else USER_TEMPLATE,
         "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
         "ollama_version": json.load(urllib.request.urlopen(f"{OLLAMA}/api/version"))["version"],
     }, (out_dir / "run.json").open("w"), indent=1)
@@ -191,14 +238,19 @@ def main():
 
     def work(p):
         try:
-            s = score_guarded(a.model, requests[p["request_id"]], emails[p["email_id"]], reloads)
+            if a.mode == "json":
+                s = score_json(a.model, requests[p["request_id"]], emails[p["email_id"]])
+            else:
+                s = score_guarded(a.model, requests[p["request_id"]], emails[p["email_id"]], reloads)
         except Exception as ex:
             return {"pair_id": p["pair_id"], "error": f"{type(ex).__name__}: {ex}"}
         return {"pair_id": p["pair_id"], "request_id": p["request_id"], "email_id": p["email_id"],
                 "label": p["label"], "kind": p["kind"], **s}
 
     # warm-up so model load time doesn't land on the first row; set the canary reference
-    if todo:
+    if todo and a.mode == "json":
+        score_json(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]])
+    elif todo:
         score_one(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]])
         if not check_canary():
             unload(a.model); check_canary()
@@ -209,7 +261,7 @@ def main():
         for row in ex.map(work, todo):
             f.write(json.dumps(row) + "\n")
             n += 1
-            if a.concurrency == 1 and n % CANARY_EVERY == 0 and not check_canary():
+            if a.mode == "logprob" and a.concurrency == 1 and n % CANARY_EVERY == 0 and not check_canary():
                 print(f"  canary drifted at {n}; unloading {a.model}", file=sys.stderr)
                 reloads[0] += 1
                 unload(a.model)

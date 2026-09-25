@@ -17,7 +17,7 @@ case "$cmd" in
     setsid nohup bash -c chain > /dev/null 2>&1 < /dev/null &
     echo "launched $model"; ;;
   pause)
-    pkill -f "[c]tl.sh"; pkill -f "bash -c [c]hain"; pkill -f "[s]core.py --model $model"
+    pkill -f "bash -c [c]hain"; pkill -f "[s]core.py --model $model"
     sleep 2; ollama stop "$model" 2>/dev/null
     echo "$(date -Is) PAUSED $model" >> runs/sweep.log
     echo "paused; GPU freed. resume with: runs/ctl.sh resume $model"; ;;
