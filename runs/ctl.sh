@@ -22,7 +22,7 @@ case "$cmd" in
     echo "$(date -Is) PAUSED $model" >> runs/sweep.log
     echo "paused; GPU freed. resume with: runs/ctl.sh resume $model"; ;;
   status)
-    pgrep -fa "[s]core.py --model $model" | head -1 || echo "not running"
+    if pgrep -f "[s]core.py --model $model" >/dev/null; then pgrep -fa "[s]core.py --model $model" | head -1; else echo "not running"; fi
     for f in "runs/${tag}_ctx8k.log" "runs/${tag}_lat.log"; do [ -f "$f" ] && echo "$f: $(tail -1 "$f")"; done
     [ -f "runs/${tag}_ctx8k/scores.jsonl" ] && echo "scored: $(wc -l < runs/${tag}_ctx8k/scores.jsonl)/9848 full, $( [ -f runs/${tag}_lat/scores.jsonl ] && wc -l < runs/${tag}_lat/scores.jsonl || echo 0)/500 subset" ;;
   *) echo "usage: $0 start|pause|resume|status <model>"; exit 1 ;;
