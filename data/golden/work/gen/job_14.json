@@ -1,0 +1,213 @@
+{
+ "request_id": "25-3152",
+ "kind": "close_call_positive",
+ "recipe": "marginal_mention",
+ "recipe_desc": "Responsive only because of a brief, passing reference that meets a request criterion (e.g. one line in an otherwise unrelated email); the rest of the email is about something else.",
+ "count": 5,
+ "label": 1,
+ "sources": [
+  {
+   "id": "sandiego:25-3152:48517572",
+   "from": "\"Duran, Luis\" <Luis.Duran@sdcounty.ca.gov>",
+   "to": "\"travislyonacpg@gmail.com\" <travislyonacpg@gmail.com>",
+   "cc": null,
+   "date": "2024-07-15T17:00:58+00:00",
+   "subject": "RE: Objective Design Standards (ODS) Checklist - Alpine",
+   "attachments": [
+    "Alpine_Objective Design Standards_032024.pdf",
+    "Alpine CoSD_ODS Checklist_non FBC_Strikeout DRAFT_3-22-24.pdf",
+    "Alpine CoSD_ODS Checklist_non FBC_Strikeout DRAFT_3-22-24.docx"
+   ],
+   "body": "Good morning,\n\nThank you for your continued coordination with our Objective Design Standards (ODS) project. As discussed, State laws that are already in effect require that any housing developments eligible for streamlining approval be reviewed with clear, objective standards regarding design aspects such as materials, colors, etc. Typically, these would be projects that include affordable housing units.  Design standards that are not objective cannot be applied to these projects.\n\nTo ensure we have objective design standards available for any potential applications, our team used your existing Design Review Checklist as a template to create an Objective Design Review Checklist that clarifies any subjective language and maintains the visual integrity of housing developments in your community. We kindly request your group send any feedback on the checklist by August 15th, 2024.\n\nThe Objective Design Review Checklist will serve as a supplemental form for projects eligible for streamlined approval under state law. It will not replace the current Design Review Checklist<https://www.sandiegocounty.gov/content/dam/sdc/pds/drb/AlpineDesignReviewChecklistFINAL1.pdf>, which will continue to apply to projects not eligible for the streamlined review. While no applications for this streamlined process have been submitted in your Community Planning Area, the Objective Design Review Checklist will be applicable if one is received. We are finalizing this Objective Design Review Checklist and will make it easily accessible online for potential applications eligible for these State laws.\n\nAttached is the draft Objective Design Review version of your community\u2019s existing Design Review Checklist, and a map delineating potentially eligible areas for this streamlined process. A strikethrough indicates a proposed removal of language, while an underline indicates a proposed change/addition.  Also attached is a PDF version for your reference. There may also be highlighted language or comment bubbles that we are requesting specific feedback on, regarding unclear language or unclear measurements.  There are additional details in the original e-mail below.\n\nWe will work to incorporate your suggestions into the checklist which will be accessible on our website in Fall 2024. While there is some flexibility to make changes in the future, staff availability and allocation may make it challenging to respond urgently to suggestions for edits after that date. Therefore, please ensure you submit any requests for modifications by August 15th, 2024, so your feedback can be incorporated into the checklist before it is made available online.\n\nPlease let us know if you have any questions as you review the document. We appreciate your continued collaboration and commitment to enhancing our unincorporated communities.\n\n[cid:image001.png@01DA7ABA.EF015A80]<http://www.sdcpds.org/>\nLuis Duran\nPlanner III | Planning & Development Services | Long Range Planning\nCounty of San Diego | 5510 Overland Ave. Suite 310 | San Diego, CA 92123|\n\u2022 (619) 214-4698  |  \u2022 Luis.Duran@sdcounty.ca.gov<mailto:Luis.Duran@sdcounty.ca.gov>\n\nFrom: Duran, Luis\nSent: Friday, March 22, 2024 4:03 PM\nTo: travislyonacpg@gmail.com\nSubject: Objective Design Standards (ODS) Checklist - Alpine\n\nHello Chair Lyon,\n\nI hope this email finds you well. Following our recent presentation at your Community Planning Group (CPG) meeting on February 22, 2024. I am pleased to update you on the latest progress regarding the Objective Design Standards (ODS) project.\n\nTo recap, our presentation centered around State laws which allow for a streamlined process for eligible multifamily projects, and how design standards can be implemented in that process. Eligible projects need to meet all eligibility requirements and objective design standards at the time of application, or their development cannot be streamlined through a ministerial process. Our project team is working to edit your existing Design Review Checklist to clarify any subjective language to maintain the visual integrity of your community in the case an eligible project application is submitted. Attached is a draft \u201cObjective\u201d version of the Alpine Checklist with a corresponding map, delineating potentially eligible areas for streamlined housing development.\n\nA few notes as you review the attached documents:\n\nMAP: State law states that a multifamily development \u201ccontains two or more residential units\u201d.  According to the California Department of Housing and Community Development, a new single-family development and an attached accessory dwelling unit when built together are considered multifamily and are eligible for streamlining under SB 35.  An applicant would still need to meet all eligibility requirements to streamline their project. These eligible parcels are distinguished by a pink color.  The blue parcels are eligible for streamlining under State law, where three or more units can be built under current Zoning. The attached maps have been updated to reflect recent State laws in effect as of March 2024.\n\nCHECKLIST: Attached is a Microsoft Word document containing tracked changes.  A strikethrough indicates a proposed removal of language, while an underline indicates proposed change/addition.  Also attached is a PDF version for your reference. The Design Review Checklist for your community may include goals or intentions related to your original Design Guidelines. As this draft is for ease of use, we have removed these to strictly focus on the design standards that must be followed. This makes the checklist shorter and easier to read. There may also be highlighted language or comment bubbles that we are requesting specific feedback on, regarding unclear language or unclear measurements.\n\nAs discussed previously, this project will not be updating or changing Alpine\u2019s Form Based Code (FBC).  The Draft Objective Design Standards Checklist attached is for the areas not covered by the FBC.  We kindly request your group review the attached Checklist to ensure that it accurately reflects the intent of your existing community\u2019s design standards. Please submit your initial feedback no later than April 23rd, 2024.\n\nWe appreciate your collaboration and commitment to enhancing our unincorporated communities.\n\nFor further information on ODS, please visit the following links: Objective Design Standards | Engage San Diego County<https://engage.sandiegocounty.gov/ods> and Objective Design Standards (sandiegocounty.gov)<https://www.sandiegocounty.gov/content/sdc/pds/longrangeplanning/ods/>\n\n[cid:image001.png@01DA7ABA.EF015A80]<http://www.sdcpds.org/>\nLuis Duran\nPlanner III | Planning & Development Services | Long Range Planning\nCounty of San Diego | 5510 Overland Ave. Suite 310 | San Diego, CA 92123|\n\u2022 (619) 214-4698  |  \u2022 Luis.Duran@sdcounty.ca.gov<mailto:Luis.Duran@sdcounty.ca.gov>"
+  },
+  {
+   "id": "sandiego:25-3152:48517320",
+   "from": "\"Noble, Dawn\" <Dawn.Noble@sdcounty.ca.gov>",
+   "to": "Travis Lyon - Alpine CPG <travislyonacpg@gmail.com>",
+   "cc": null,
+   "date": "2024-12-26T20:16:24+00:00",
+   "subject": "Updates to Alpine CPG - New Member and Reappointments ",
+   "attachments": [
+    "12102024 ag40 Minute Order - Alpine Reappointments.pdf",
+    "VNSeat2Seat11.pdf"
+   ],
+   "body": "Hi Travis -\nPlease see below updates made to the Alpine CPG membership:\n\nReappointments and New Member\nPlease see attached the Minute Order from the 12/10/24 Board of Supervisors Meeting with the reappointments for the members whose seats are expiring on 1/6/2025, highlighted on page 2. The Clerk of the Board mailed letters to you and Nina Gould (new member) confirming your appointments and seat numbers since you both signed up for the election as candidates. Nina was also sent an email from PDS with the training requirements for new members to complete.\n\nExpiring Seats\nMary Brochard- seat 1 and Michael Milligan-seat 11 did not apply to renew their membership and their terms will expire on 1/6/25. The Clerk of the Board will be sending them their leaving office Form 700, which they will have 30 days from the date their seats expire on 1/6/25 to complete.  Please let me know if there are any changes to the status of these two members.\n\nUpdated Roster\nThe roster for the Alpine CPG has been updated and is posted on the PDS website here: https://www.sandiegocounty.gov/content/dam/sdc/pds/Groups/alpine/ALROSTER.pdf\nPlease review and let me know if any changes are needed.\n\nVacancies and pending applicants\nThere are now two vacant seats on the Alpine CPG - Seat 2 and 11.  There was one applicant - Lauren Rowley from back in October, her last email said she would reach out to you regarding becoming a member, she still needs to submit her completed certification form. Can you please let me know if there has been any update on her status and if the CPG members will be nominating her?\n\nAn updated Vacancy Notice has been attached for you to post and has also been posted on the PDS website here: https://www.sandiegocounty.gov/content/dam/sdc/pds/Groups/alpine/VNSeat2Seat11.pdf\n\nAlso, if there are any changes in 2025 to your Chair, Vice Chair or Secretary please let me know. Thanks!\n\n[cid:image001.png@01DB5787.8AED2380]\n\nDawn Noble | Program Coordinator | Support Services\nPlanning & Development Services | Support Services\n5510 Overland Avenue | Suite 210 | San Diego, CA 92123 MS: O-377\nCell: 619-629-5829"
+  },
+  {
+   "id": "sandiego:25-3152:48517398",
+   "from": "APG <associationofplanninggroups@gmail.com>",
+   "to": "Robin Joy Maxson <RobinJoyMaxson@gmail.com>, Jeff@jacumbahotsprings.com, Mark Gassert <c.ornfed@yahoo.com>, Lynne Malinowski <rustyhorseranch@outlook.com>, Patrick Brown <patrickeng@sbcglobal.net>, \"Oday Yousif (Valle De Oro)\" <odayyousif@gmail.com>, \"Kiki Munshi (Julian)\" <kiki@skagenranch.com>, Harriet Taylor <harrietgtaylor1@gmail.com>, Eileen Delaney <eileen.fallbrook@gmail.com>, \"Jan Hedlun, Potrero,\" <janwrites2013@yahoo.com>, \"Billie Jo Jannen, Campo,\" <campoplanninggroup@nym.hush.com>, Earl Goodnight <blvdgoodnight@gmail.com>, Steve Hutchison <hutchisonsm@gmail.com>, Paul Dombkowski <paul.dombkowski@gmail.com>, Story R Vogel <storyvogel@aol.com>, \"Douglas S. Dill\" <theddills@att.net>, Travis Lyon <travislyonacpg@gmail.com>, \"Sandra Farrell,\" <tovcsg.chair@gmail.com>, Rebecca Falk <rebfalk7@gmail.com>, petersonenv@hotmail.com, Jennifer Haider <jennehaider@gmail.com>, Lakeside Planning Group <lakesidecpg@gmail.com>, \"jimdax8@gmail.com\" <jimdax8@gmail.com>, \"jimcusteausvcpg@gmail.com\" <jimcusteausvcpg@gmail.com>, Ron Nehring <ron@ronnehring.com>, cory.gautereaux@gmail.com, drattray524@aol.com",
+   "cc": null,
+   "date": "2025-02-01T15:32:17-08:00",
+   "subject": "Report on SANDAG's January 2025 Meetings to the Association of Planning Groups - San Diego County",
+   "attachments": [],
+   "body": "Good Afternoon APG Members,\n\nNote: The SANDAG Board of Directors held three meetings in the month of\nJanuary.\n\n*SANDAG Leadership Changes - New Officers Elected:*\nNew Chair for SANDAG BOD: Lesa Heebner, City of Solana Beach\nNew Vice Chair for SANDAG BOD: Joe Lacava, City of San Diego\nNew Second Vice Chair for SANDAG BOD: John Minto, City of Santee\n\nJan. 10th - APG comment to Board: Good morning. Congratulations on your\nelection as the dream team for the officers. I do represent the\nunincorporated area, over 500,000 people, and, of course, this seat is not\na voting seat. Today I want to note for the record that the County is not\npresent and so, therefore; all action taken by this Board today - voting\naction - has effectively disenfranchised the Unincorporated Area. We're not\npresent. And, we don't have a vote. And, I hope in 2025, I expect in 2025,\nthat this Board will overall do a better job of ensuring that the\nUnincorporated Area is not disenfranchised. I realize County being absent\nis not the fault of the Board, but there must be something in place that\ntakes into account that there's over half a million people who are not\nparticipating in the proceedings today. Thank you.\n\nJan. 31st - APG Comment to the Board: The County of San Diego is not\npresent. However, the people of the County of San Diego are present.\n(Note: County was completely absent for all of the January 2025 BOD\nmeetings - 10th & 24th & 31st)\n\n*SANDAG CEO, Mario Orso Report:*\n-Mario Orso reported that the CFO was adjusting revenue projections on\nTransNet funds by a couple of percentage points - between 2 to 4%. This\nwould be a decrease in expected funding and could affect both MTS and NCTD.\n-The Grand Jury report findings and recommendations came as no surprise as\nthe Office of the Independent Performance Auditor had brought these needed\nissues and changes to the Board in their earlier report and they are being\naddressed.\n\n*Otay Mesa East and SR 11 Report:*\nThe Federal agreements with U.S. Customs and Border Protection and with\nGeneral Services have set the stage for the beginning of construction and\nthe relationship SANDAG will have with CBP. Caltrans is also a partner.\nIf the toll revenues of the Port of Entry are not as projected the\nshortfall cannot be made up with TransNet funds.\n\nAnn Fox, Caltrans comment: ...We've done the studies that have shown the\nmany dollars and jobs lost and the air pollution created by the long delays\nalong our shared borders. California has invested more than half of the\n$1.3 billion project cost and has spent hundreds of millions more building\nout the corridor and the connections we have with State Routes 905 and 125.\n...We have built the infrastructure, the new roads, the utilities, the\ntechnology, the air quality monitors out there, in addition to over 180\nacres of environmental mitigation.\n\nJack Fisher, City of Imperial Beach comment: (reading Brian Bilbray letter)\n\"... I'm sure some other members will not continue to support the expansion\nof the economic growth with the environmental damage without addressing\nhistorical and future environmental and public health threats caused by\nsuch economic development. I ask that every board member here question if\ntheir city council or county board would vote for any project knowing its\nenvironmental and health problems if it was going to be anywhere close to\nthe disastrous situation that citizens of the South Bay faced everyday?\"\nI can't tell you how frustrated I am because I know with the increased\ntraffic and commerce Mexico will continue to grow. Their population will\ncontinue to grow. It was mentioned that just this operation port of entry\nopening will create 90,000 jobs on the U.S. side. I would imagine that\nnumber probably doubles or triples on the Mexico side. Still without the\ninfrastructure.\n\n*TransNet Major Corridor Projects Update: State Route 67:*\nSam Amen, Karina Cantera-Angel & Tracy D'Aoust Roberts of Caltrans -\npresented 3 alternatives for the improvement of SR 67 understanding that\nevacuation was the highest consideration. Project area is SR 67 from\nHighland Valley in Ramona to Mapleview in Lakeside. Alternative #1 provides\n4 outbound lanes and one inbound lane dedicated to inbound emergency\nvehicles. Alternatives #2 & #3 provide some of these benefits, but not\nconsistently throughout the project area and include the use of shoulders\nas \"lanes\" in an emergency.\n\nAPG comment to Board: The Unincorporated Area has been partnering with\nCaltrans and we thank Sam, Karina, Tracy, Melina, Stephen and Tyler for\ntheir dedication. Safety is always first.  Caltrans states, \"The primary\ngoal of the SR 67 Highway Improvements Project is to increase capacity\nduring emergencies to significantly reduce evacuation times.\"  Safety is\nalways first. SANDAG serves over 3.3 million people across the region;\nhowever, some benefit more than others. Had SANDAG delivered on the\npromises of TransNet to the Unincorporated Area - Measure G would have\npassed. The experience of those patiently awaiting their turn at the\nRegional funding bucket has been disheartening. 1988 and 2004 turned into a\nresounding \"no\" in 2024 for rural communities on Measure G. The LA fires\ndemonstrate a clear and present danger to rural highway travelers -\nevacuees may live locally or may be visiting from the city. Caltrans has\nstood ready and willing to deliver highway safety. Alternative #1 delivers\non the Promise. Let us immediately put into place emergency widening to\nmove evacuees through the current SR 67 gauntlet of bottlenecks. Safety is\nalways first. SANDAG does not want to be the obstacle to improvements\nnecessary to avoid the catastrophic results of the LA fires. The elected\nBoard members would not want the public to rightfully be able to say that\nthey could have done more to prevent a loss of life and property. Thank you.\n\nSteve Vaus, City of Poway; Carolina Chavez, City of Chula Vista; Rebecca\nJones, City of San Marcos; Kevin Shin, City of Carlsbad; Bill Wells, City\nof El Cajon; John Minto, City of Santee;  & Terry Gaasterland, City of Del\nMar all made comments: All of these city representatives were positive in\ntheir comments emphasizing the need to expand SR 67 for evacuation purposes\nand Mayors Minto, Jones, Wells and Gaasterland specifically endorsed the\nselection of Alternative #1. There were no comments opposing Caltrans\nproposed solutions to SR 67. The Board of Directors was supportive.\n\nLesa Heebner, City of Solana Beach & SANDAG Chair comment:  \"What can we do\nnow?\"\n\nAllan Kosup, Caltrans response: We have an emergency widening project that\njust began this week on SR 67. The environmental report was received last\nweek and the project was begun immediately. It will be over the next six\nmonths. This will provide more space in the event of an evacuation.\n\n*APG News:*\n-Thank you to all who were able to attend our in-person APG meeting held on\nSaturday, January 4th, 2025. A quorum was established and voting actions\nwere taken.\n\n*APG Officers elected for 2025 (one year terms):*\nChair, Robin Joy Maxson\nVice Chair, Eileen Delaney\nSecretary, Carol Hake\n\n*APG Representative to SANDAG Board of Directors (two year terms):*\nPrimary Representative, Robin Joy Maxson\nAlternate Representative, Eileen Delaney\n\n*APG Representatives to SANDAG Policy Advisory Committees:*\n\nRegional Planning Committee:\nAPG Representative: Ron Nehring\nAPG Alternate: Kiki Skagen Munshi\n\nTransportation Committee:\nAPG Representative: Jim Custeau\nAPG Alternate: Paul Dombkowski\n\nBorders Committee:\nAPG Representative: Lynne Malinowski\nAPG Alternate: Harriet Taylor\n\nPublic Safety Committee:\nAPG Representative: Paul Dombkowski\nAPG Alternate: Eileen Delaney\n\nAudit Committee:\nAPG Representative: Carol Hake\n\n-Update: Congressman Darrell Issa - representing the majority of the\nunincorporated area in San Diego County - has not set a meeting date with\nthe APG as of this report. Since July, the APG has been working to set up a\njoint meeting with the Congressman, SANDAG CEO Mario Orso and our APG\nmembers without success. SANDAG CEO Mario Orso has stated he will be\navailable and happy to attend our joint meeting. Congressman Issa has not\nbeen available and very little communication has come from his office. The\nAPG sent a request to his Chief of Staff, Veronica Smith Wong. She has\nresponded, but not with a set date, yet.\n\nThe subject of the meeting will be:\n\"Transportation funding and safety in the Unincorporated Area; addressing\nfatality rate on rural highways, safe wildfire evacuation, lack of public\ntransportation resulting in geographic isolation of vulnerable populations\nand continued diversion of transportation funds from rural highway\nprojects.\"\n\nSeveral Planning/Sponsor Groups have already sent letters to Congressman\nIssa. If any group wishes to contact Issa directly, email his Chief of\nStaff Veronica Smith Wong: veronica.smith@mail.house.gov\n\n*Questions from APG members*\nNo questions received this month.\n\n*Links*\nSANDAG BOD and PAC meetings for calendar 2025:\nhttps://legistarweb-production.s3.amazonaws.com/uploads/attachment/pdf/3108009/Item_3_-_Revised_2025_Legislative_Calendar.pdf\n\nOriginal SANDAG documents and meeting minutes are available directly from\nSANDAG's Board of Directors website:\nhttps://www.sandag.org/meetings-and-events/board-of-directors\n\nReport Submitted by:\nRobin Joy Maxson, Representative to SANDAG\nAssociation of Planning Groups - San Diego County"
+  },
+  {
+   "id": "sandiego:25-3152:48517350",
+   "from": "\"Mc Nally, Sylvia\" <SMcNally@sdge.com>",
+   "to": "Travis Lyon <travislyonacpg@gmail.com>",
+   "cc": "\"Knudsen, Rob\" <RKnudse1@sdge.com>, \"Ramp, Jennifer\" <JRamp@sdge.com>, \"Mc Nally, Sylvia\" <SMcNally@sdge.com>",
+   "date": "2024-03-25T18:31:21+00:00",
+   "subject": "Strategic Undergrounding project notifications - Alpine - 30 Day Construction Notification ",
+   "attachments": [
+    "2024.03.22 SUG C0073G Alpine 30 day construction notification.pdf"
+   ],
+   "body": "Hello Travis,\n\nThe attached 30-Day Construction notification was mailed on March 22, 2024, for the below project:\n\n  *   C0073 G - Alpine:  Los Terrinitos Rd, Wildwood Glen Ln\n\nPlease let me know if you have any questions.\n\nThank you,\n\nSylvia Mc Nally\nMunicipal Infrastructure Advisor\nRegional Public Affairs\nM 858.905.2187 |  T 858.650.4107\nE smcnally@sdge.com<mailto:smcnally@sdge.com>\n\nTrack your project(s) with the Builder Services Customer Portal:\nwww.sdge.com/builder-services/builder-services-portal<http://www.sdge.com/builder-services/builder-services-portal>\n\nFollow Us:\n[A picture containing object  Description automatically generated]<https://www.facebook.com/SanDiegoGasandElectric/>[A picture containing mirror, game, drawing  Description automatically generated]<https://twitter.com/SDGE>[Icon  Description automatically generated]<https://www.linkedin.com/company/sdge>[Icon  Description automatically generated]<https://www.instagram.com/sdge/>\n\n[cid:image006.png@01DA7EA7.8692D960]\n\nDo the right thing. Champion People. Shape the Future.\nFor more information about privacy at SDG&E visit sdge.com/privacy<https://www.sdge.com/privacy>."
+  },
+  {
+   "id": "sandiego:25-3152:48517820",
+   "from": "\"Ecijan, Jayden\" <Jayden.Ecijan@sdcounty.ca.gov>",
+   "to": "\"Armstrong, Jacob\" <Jacob.Armstrong@sdcounty.ca.gov>, \"Aziz, AJ\" <AJ.Aziz@sdcounty.ca.gov>, \"Bunnemeyer, Dag\" <Dag.Bunnemeyer@sdcounty.ca.gov>, \"Hird, Chloe\" <Chloe.Hird@sdcounty.ca.gov>, \"Hofreiter, Daniella T\" <DaniellaT.Hofreiter@sdcounty.ca.gov>, \"Johnson, Michael D.\" <Michael.Johnson1@sdcounty.ca.gov>, \"Oberbauer, Sean\" <Sean.Oberbauer@sdcounty.ca.gov>, \"Slovick, Mark\" <Mark.Slovick@sdcounty.ca.gov>, \"Smith, Ashley J\" <Ashley.Smith2@sdcounty.ca.gov>, \"Truong, Angelica\" <Angelica.Truong@sdcounty.ca.gov>, \"Doan, Vicky\" <Vicky.Doan@sdcounty.ca.gov>, \"travislyonacpg@gmail.com\" <travislyonacpg@gmail.com>",
+   "cc": "\"Sanchez, Martha Elena\" <MarthaElena.Sanchez@sdcounty.ca.gov>",
+   "date": "2024-07-03T17:40:28+00:00",
+   "subject": "PDS2024-STP-18-012TE2 Time Extension",
+   "attachments": [
+    "PDS2024-STP-18-012TE2-PDS-PLN-524.pdf",
+    "PDS2024-STP-18-012TE2-PDS-PLN-346.pdf"
+   ],
+   "body": "Hello,\n\nAttached are documents pertaining to a Discretionary Permit for PDS2024-STP-18-012TE2 Time Extension.  If you normally receive a plot plan, it will be delivered through regular mail within the next few days.\nIf you have any questions or comments regarding PDS2024-STP-18-012TE2, please reach out to Martha Elena Sanchez directly at MarthaElena.Sanchez@sdcounty.ca.gov<mailto:MarthaElena.Sanchez@sdcounty.ca.gov>. If for any reason the project is reassigned, Martha Elena Sanchez will reach out and provide an updated point of contact for the project.\n\nSincerely,\n[cid:image002.png@01DACD35.6A0B09C0]\nJayden Ecijan (He/Him)\nPlanning & Development Services (PDS)\nStudent Worker\n5510 Overland Avenue., Suite 110, San Diego, CA 92123\nEmail: Jayden.Ecijan@sdcounty.ca.gov<mailto:Jayden.Ecijan@sdcounty.ca.gov>"
+  }
+ ],
+ "request_text": "Re: Public Records Act Request\n\nDear Alpine Community Planning Group Members,\n\nPursuant to the California Public Records Act, I am writing to request a copy of the records detailed below.\n\nI am researching how the Alpine Community Planning Group (ACPG) conducts its business on the part of the residents of Alpine in preparation for publication of an expose. To that end, I request the following records:\n\n1. All Alpine Community Planning Group Agendas and Minutes from 1 January 2024 through 31 May 2025.\n\n2. All communications between any member of the Alpine Community Planning Group and another member(s) of the Alpine Community Planning Group from 1 January 2024 through 31 May 2025. Please include current and former members during this time period.\n\n3. All communications between any member of the Alpine Community Planning Group and another government agency, including between the group members and the County of San Diego from 1 January 2024 through 31 May 2025. Please include current and former members during this time period.\n\n4. All communications between any member of the Alpine Community Planning Group and any member of the public, including between the group members and individuals/entities with business before the group from 1 January 2024 through 31 May 2025. Please include current and former members during this time period.\n\nPlease note that the Public Records Act allows a member of the public to request records by describing their content, rather than asking for specific documents by name; an agency that receives such a request must \u201csearch for records based on criteria set forth in the search request.\u201d\n\nPublic records represent \u201cany handwriting, typewriting, printing, photostating, photographing, photocopying, transmitting by electronic mail or facsimile, and every other means of recording upon any tangible thing any form of communication or representation, including letters, words, pictures, sounds, or symbols, or combinations thereof, and any record thereby created, regardless of the manner in which the record has been stored.\u201d (Government Code section 7920.545.)\n\n1. This request applies to all records in your agency\u2019s possession, including documents created by a member of another government agency or a member of the public.\n\n2. If specific portions of any documents are exempt from disclosure, please provide the non-exempt portions.\n\n3. Please provide entire documents, even if only parts of them are responsive to this request.\n\nIf you maintain records or data in electronic format, please provide them in that same format.\n\n1 California First Amendment Coalition v. Superior Court, 67 Cal.App.4th 159, 165-66 (1998).\n2 See California State University v. Superior Court, 90 Cal. App. 4th 810, 824-25 (1999).\n3 Gov\u2019t. Code \u00a7 6253(a). versions are acceptable) to avoid copying costs.\n4 If you are unable to reproduce electronic records in electronic form, please provide a reason for doing so.\n\nI request that you waive copying fees because I have limited resources, and the information requested will be used in the public interest to further the public\u2019s understanding of the local community planning group action. None of the information obtained will be sold or distributed for profit. If you are unable to waive the copying fees, and you anticipate that these costs will exceed $50, or that the time needed to copy the records will delay their release, please contact me so that we can arrange to inspect the document or decide which documents we wish to have copied. Otherwise, please copy and send them as soon as possible. Please respond to this request within ten (10) days, either by providing all the requested records or by providing a written response setting forth the legal authority for withholding or redacting any document and stating when the documents will be made available.\n\nIf you require any clarification in identifying responsive documents or focusing this request, please contact [redacted]. Please send all records responsive to this request to Louis Russo.\n\nThank you for your time and attention to this matter.\n\nSincerely,\n\n[redacted]\n\nGov\u2019t. Code \u00a7 6253.9.\nGov\u2019t. Code \u00a7\u00a7 6253(c), 6255.\nGov\u2019t. Code \u00a7 6253.1.",
+ "roster": [
+  {
+   "name": "Travis Lyon",
+   "role": "Chair (Seat 5). Re-elected Chair on 1/25/2024 and 1/23/2025.",
+   "period": "Whole window, 1/1/2024 to 5/31/2025. First appointed 10/27/2020. The BOS reappointed him on 10/22/2024 in lieu of election, for a term to 1/8/2029.",
+   "emails": [
+    "travislyonacpg@gmail.com",
+    "travis.lyon@alpinecpg.org"
+   ]
+  },
+  {
+   "name": "Richard Saldano Jr.",
+   "role": "Vice Chair (Seat 7). Also chairs the Private Actions subcommittee.",
+   "period": "Whole window. Appointed 10/27/2020; the BOS reappointed him on 12/10/2024 (Minute Order ag40) for a term to 1/8/2029.",
+   "emails": [
+    "rsaldano@rdconstruction.com",
+    "rsaldano@contelproject.com"
+   ]
+  },
+  {
+   "name": "Erika Taylor Simmons",
+   "role": "Secretary (Seat 6).",
+   "period": "Whole window. Appointed 10/25/2022, term to 1/4/2027. Still active on 5/29/2025.",
+   "emails": [
+    "taylor.erika@gmail.com"
+   ]
+  },
+  {
+   "name": "Mary Davis",
+   "role": "Member (Seat 12). Parliamentarian, appointed by the Chair on 1/25/2024 and 1/23/2025.",
+   "period": "Whole window. Appointed 10/25/2022, term to 1/4/2027.",
+   "emails": [
+    "marydavisacpg@gmail.com",
+    "sdmary33@yahoo.com"
+   ]
+  },
+  {
+   "name": "Kim Brown (Kimberly Brown)",
+   "role": "Member (Seat 4)",
+   "period": "Whole window. Appointed 10/25/2022, term to 1/4/2027. Still active on 5/29/2025.",
+   "emails": [
+    "dawson_kim215@yahoo.com"
+   ]
+  },
+  {
+   "name": "Darlene Cossio",
+   "role": "Member (Seat 10). Chairs the Communications subcommittee.",
+   "period": "Whole window. Appointed 10/25/2022, term to 1/4/2027.",
+   "emails": [
+    "darlenecossio@gmail.com"
+   ]
+  },
+  {
+   "name": "Roger Garay",
+   "role": "Member (Seat 9)",
+   "period": "Whole window. Appointed 10/27/2020; the BOS reappointed him on 12/10/2024 for a term to 1/8/2029.",
+   "emails": [
+    "rogergaray1940@gmail.com",
+    "rogertax@ix.netcom.com"
+   ]
+  },
+  {
+   "name": "Angela (Angie) May",
+   "role": "Member (Seat 3). Chairs the Circulation subcommittee.",
+   "period": "Whole window. Appointed 5/10/2022; the BOS reappointed her on 12/10/2024 for a term to 1/8/2029.",
+   "emails": [
+    "angie@stoneyoaksranch.com",
+    "angiemay@alpinecommunitynetwork.com"
+   ]
+  },
+  {
+   "name": "Sarah Reimund",
+   "role": "Member (Seat 14)",
+   "period": "Whole window. Appointed 10/25/2022, term to 1/4/2027.",
+   "emails": [
+    "reimundscience@gmail.com"
+   ]
+  },
+  {
+   "name": "Colby Ross",
+   "role": "Member (Seat 13). Chairs the Public Safety subcommittee.",
+   "period": "Whole window. Appointed 9/14/2021; the BOS reappointed him on 12/10/2024 for a term to 1/8/2029.",
+   "emails": [
+    "colby.ross13@yahoo.com"
+   ]
+  },
+  {
+   "name": "Kippy A. Thomas",
+   "role": "Member (Seat 15)",
+   "period": "Whole window. Appointed 10/27/2020; the BOS reappointed him on 12/10/2024 for a term to 1/8/2029.",
+   "emails": [
+    "kippyt123@gmail.com"
+   ]
+  },
+  {
+   "name": "Nina Gould",
+   "role": "Member (Seat 1). Also on the Coordinating Committee (ad hoc, Standing Rules review) appointed on 1/23/2025.",
+   "period": "The BOS appointed her on 10/22/2024 in lieu of election, for a new term to 1/8/2029. She was sworn in at the 1/23/2025 meeting and served through the end of the window.",
+   "emails": [
+    "ninagould1@gmail.com",
+    "AlpineCPlanningGroupNina@gmail.com",
+    "earthwoman33@gmail.com",
+    "naturewoman3@gmail.com"
+   ]
+  },
+  {
+   "name": "John Paul Sullivan",
+   "role": "Member (Seat 8)",
+   "period": "From 1/1/2024 until he resigned 'effective immediately' on 4/1/2025. Appointed 10/25/2022.",
+   "emails": [
+    "john.p.sullivan1@gmail.com"
+   ]
+  },
+  {
+   "name": "Mary Kay Borchard",
+   "role": "Member (Seat 1)",
+   "period": "From 1/1/2024 to 12/5/2024. She resigned effective her last meeting on 12/5/2024, and her term would have expired 1/6/2025 in any case; she chose not to refile.",
+   "emails": [
+    "mktbinalpine@gmail.com",
+    "mary.k@earthlink.net"
+   ]
+  },
+  {
+   "name": "Michael (Mike) M. Milligan",
+   "role": "Member (Seat 11)",
+   "period": "From 1/1/2024 until his term expired on 1/6/2025. He did not apply to renew. Appointed 10/27/2020.",
+   "emails": [
+    "michaelmilligan314@yahoo.com",
+    "michael.milligan@alpinecpg.org"
+   ]
+  },
+  {
+   "name": "Amy Easterling Blake",
+   "role": "Member (Seat 2)",
+   "period": "From 1/1/2024 to about late June 2024, when she resigned because she was moving. Appointed 10/25/2022.",
+   "emails": [
+    "aeblake80@gmail.com"
+   ]
+  }
+ ]
+}
