@@ -1,0 +1,571 @@
+<title>Golden Set Adjudication</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a review desk. Queue rail on the left, the record in the middle, the decision bar pinned under it. */
+:root {
+  --paper: #f3f5f2;
+  --sheet: #ffffff;
+  --ink: #1b2320;
+  --muted: #5b6862;
+  --rule: #d6ddd8;
+  --rule-soft: #e7ece8;
+  --accent: #1d5f73;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2eef1;
+  --resp: #1f6a4c;
+  --resp-soft: #e1f0e8;
+  --nonresp: #9b3a2c;
+  --nonresp-soft: #f6e4e0;
+  --flip: #94600c;
+  --flip-soft: #f7ecd6;
+  --mark: #fbe9a6;
+  --mark-ink: #1b2320;
+  --shadow: 0 1px 2px rgba(20, 35, 30, .08), 0 4px 16px rgba(20, 35, 30, .06);
+  --f-ui: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-legal: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --rail-w: 320px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #131917; --sheet: #1b2320; --ink: #e4ebe7; --muted: #9aa8a1; --rule: #2f3b37; --rule-soft: #25302c;
+    --accent: #6fb3c6; --accent-ink: #0d1a1f; --accent-soft: #1d3138;
+    --resp: #6cc49c; --resp-soft: #183428; --nonresp: #ec8d7d; --nonresp-soft: #3a1f1a;
+    --flip: #e2b05a; --flip-soft: #3a2c12; --mark: #5c4b12; --mark-ink: #fff6d6;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #131917; --sheet: #1b2320; --ink: #e4ebe7; --muted: #9aa8a1; --rule: #2f3b37; --rule-soft: #25302c;
+  --accent: #6fb3c6; --accent-ink: #0d1a1f; --accent-soft: #1d3138;
+  --resp: #6cc49c; --resp-soft: #183428; --nonresp: #ec8d7d; --nonresp-soft: #3a1f1a;
+  --flip: #e2b05a; --flip-soft: #3a2c12; --mark: #5c4b12; --mark-ink: #fff6d6;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 16px rgba(0, 0, 0, .3);
+  color-scheme: dark;
+}
+html { height: 100%; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+body { height: 100%; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--f-ui); }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); }
+.app { height: 100%; display: grid; grid-template-columns: var(--rail-w) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+
+/* top bar */
+.top { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px 20px; flex-wrap: wrap; padding: 10px 20px; border-bottom: 1px solid var(--rule); background: var(--sheet); }
+.top h1 { font-size: 16px; font-weight: 700; margin: 0; letter-spacing: .01em; }
+.top h1 small { font-weight: 500; color: var(--muted); margin-left: 6px; }
+.progress { flex: 1 1 220px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bar { flex: 1; height: 6px; background: var(--rule-soft); border-radius: 3px; overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.progress .count { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.sync { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.sync::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.sync[data-s="saved"]::before { background: var(--resp); }
+.sync[data-s="saving"]::before { background: var(--flip); }
+.sync[data-s="local"]::before, .sync[data-s="error"]::before { background: var(--nonresp); }
+.queue-btn { display: none; border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; padding: 5px 10px; font-size: 13px; }
+
+/* rail */
+.rail { border-right: 1px solid var(--rule); background: var(--sheet); display: flex; flex-direction: column; min-height: 0; }
+.filters { padding: 14px 16px 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--rule-soft); }
+.seg { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.seg button { border: 1px solid var(--rule); background: transparent; border-radius: 6px; padding: 6px 8px; font-size: 13px; text-align: left; display: flex; justify-content: space-between; gap: 6px; }
+.seg button span { color: var(--muted); font-variant-numeric: tabular-nums; }
+.seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.seg button[aria-pressed="true"] span { color: inherit; opacity: .85; }
+.row-ctl { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.row-ctl select { border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; padding: 4px 6px; }
+.row-ctl label { display: inline-flex; gap: 5px; align-items: center; color: var(--muted); }
+.list { overflow-y: auto; flex: 1; min-height: 0; margin: 0; padding: 6px 0; list-style: none; }
+.list li button { width: 100%; border: 0; background: transparent; text-align: left; padding: 8px 16px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 2px 8px; align-items: start; border-left: 3px solid transparent; }
+.list li button:hover { background: var(--rule-soft); }
+.list li button[aria-current="true"] { background: var(--accent-soft); border-left-color: var(--accent); }
+.list .n { font: 500 12px var(--f-mono); color: var(--muted); padding-top: 2px; }
+.list .subj { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.list .meta { grid-column: 2; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.list .st { grid-row: 1 / 3; grid-column: 3; align-self: center; }
+.rail-foot { border-top: 1px solid var(--rule-soft); padding: 10px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); }
+.rail-foot button { border: 1px solid var(--rule); background: transparent; border-radius: 6px; padding: 4px 9px; font-size: 12px; }
+.empty-list { padding: 24px 16px; color: var(--muted); font-size: 13px; }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; justify-content: center; min-width: 26px; height: 22px; padding: 0 7px; border-radius: 11px; font: 600 12px var(--f-mono); border: 1px solid var(--rule); color: var(--muted); }
+.pill[data-v="R"], .pill[data-v="K"] { background: var(--resp-soft); color: var(--resp); border-color: transparent; }
+.pill[data-v="N"], .pill[data-v="D"] { background: var(--nonresp-soft); color: var(--nonresp); border-color: transparent; }
+.pill[data-v="F"], .pill[data-v="?"] { background: var(--flip-soft); color: var(--flip); border-color: transparent; }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; padding: 1px 8px; border-radius: 10px; background: var(--rule-soft); color: var(--muted); white-space: nowrap; }
+.chip.in { background: var(--resp-soft); color: var(--resp); }
+.chip.out { background: var(--nonresp-soft); color: var(--nonresp); }
+.chip.edge { background: var(--flip-soft); color: var(--flip); }
+
+/* main */
+.main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.scroll { flex: 1; overflow-y: auto; min-height: 0; padding-block: 18px 28px; padding-inline: 24px; }
+.record { max-width: 940px; margin: 0 auto; display: grid; gap: 16px; }
+.banner { border: 1px solid var(--nonresp); background: var(--nonresp-soft); color: var(--ink); border-radius: 8px; padding: 10px 14px; font-size: 13.5px; }
+.crumb { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; }
+.crumb .where { font: 500 12px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.crumb h2 { flex-basis: 100%; margin: 0; font-size: 21px; line-height: 1.3; font-weight: 600; text-wrap: balance; overflow-wrap: anywhere; }
+.why { font-size: 13.5px; color: var(--muted); }
+
+.panel { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; }
+.panel > summary, .panel > .hd { list-style: none; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; cursor: pointer; }
+.panel > .hd { cursor: default; border-bottom: 1px solid var(--rule-soft); }
+.panel > summary::-webkit-details-marker { display: none; }
+.panel > summary::before { content: "▸"; color: var(--muted); font-size: 12px; }
+.panel[open] > summary::before { content: "▾"; }
+.panel[open] > summary { border-bottom: 1px solid var(--rule-soft); }
+.label { font: 600 11.5px var(--f-ui); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.bd { padding: 12px 16px 14px; display: grid; gap: 10px; min-width: 0; }
+
+.scope .items { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-family: var(--f-legal); font-size: 15.5px; line-height: 1.5; max-width: 72ch; }
+.scope .items li { display: grid; grid-template-columns: 30px minmax(0, 1fr); }
+.scope .items b { font-family: var(--f-mono); font-weight: 500; font-size: 13px; color: var(--accent); padding-top: 2px; }
+.scope .window { font-family: var(--f-legal); font-size: 15.5px; }
+.scope .note { font-size: 13px; color: var(--muted); max-width: 80ch; }
+.sub { border-top: 1px dashed var(--rule); padding-top: 8px; }
+.sub > summary { cursor: pointer; font-size: 13px; color: var(--accent); font-weight: 600; }
+.legal { font-family: var(--f-legal); font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 78ch; margin: 8px 0 0; }
+.tablewrap { overflow-x: auto; margin-top: 8px; }
+table.roster { border-collapse: collapse; font-size: 12.5px; min-width: 720px; }
+table.roster th, table.roster td { text-align: left; vertical-align: top; padding: 6px 8px; border-bottom: 1px solid var(--rule-soft); }
+table.roster th { font-weight: 600; color: var(--muted); }
+table.roster td.addr { font-family: var(--f-mono); font-size: 11.5px; }
+
+.prelabel .verdict { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.prelabel p { margin: 0; max-width: 80ch; }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; font-size: 13.5px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+
+.hdrs { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 14px; font-size: 13.5px; }
+.hdrs dt { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; padding-top: 2px; }
+.hdrs dd { margin: 0; overflow-wrap: anywhere; }
+.hdrs .subject { font-weight: 600; }
+.body { margin: 0; padding: 14px 16px 18px; white-space: pre-wrap; overflow-wrap: anywhere; font: 14.5px/1.6 var(--f-ui); max-width: 86ch; }
+mark { background: var(--mark); color: var(--mark-ink); border-radius: 2px; padding: 0 1px; }
+.nohl mark { background: transparent; color: inherit; padding: 0; }
+a { color: var(--accent); }
+
+/* decision bar */
+.decide { border-top: 1px solid var(--rule); background: var(--sheet); padding: 10px 24px calc(10px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow); }
+.decide-in { max-width: 940px; margin: 0 auto; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px 14px; align-items: center; }
+.calls { display: flex; gap: 8px; flex-wrap: wrap; }
+.call { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--rule); background: var(--sheet); border-radius: 8px; padding: 8px 14px; font-weight: 600; font-size: 14px; }
+.call kbd { font: 500 11px var(--f-mono); border: 1px solid var(--rule); border-radius: 4px; padding: 0 5px; color: var(--muted); }
+.call[data-v="R"]:hover, .call[data-v="K"]:hover { border-color: var(--resp); }
+.call[data-v="N"]:hover, .call[data-v="D"]:hover { border-color: var(--nonresp); }
+.call[data-v="F"]:hover { border-color: var(--flip); }
+.call[aria-pressed="true"][data-v="R"], .call[aria-pressed="true"][data-v="K"] { background: var(--resp); border-color: var(--resp); color: var(--sheet); }
+.call[aria-pressed="true"][data-v="N"], .call[aria-pressed="true"][data-v="D"] { background: var(--nonresp); border-color: var(--nonresp); color: var(--sheet); }
+.call[aria-pressed="true"][data-v="F"] { background: var(--flip); border-color: var(--flip); color: var(--sheet); }
+.call[aria-pressed="true"] kbd { color: inherit; border-color: currentColor; }
+.note-in { width: 100%; min-height: 38px; max-height: 120px; resize: vertical; border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; background: var(--paper); font-size: 13.5px; }
+.nav { display: flex; gap: 6px; }
+.nav button { border: 1px solid var(--rule); background: var(--sheet); border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+.nav button:disabled { opacity: .4; cursor: default; }
+.decide .hint { grid-column: 1 / -1; font-size: 12px; color: var(--muted); display: flex; gap: 6px 16px; flex-wrap: wrap; }
+
+.copybox { position: fixed; inset: auto 16px 16px 16px; max-width: 560px; margin-left: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; box-shadow: var(--shadow); padding: 14px; display: grid; gap: 8px; z-index: 30; }
+.copybox textarea { width: 100%; height: 160px; font: 12px var(--f-mono); background: var(--paper); border: 1px solid var(--rule); border-radius: 6px; }
+.copybox button { justify-self: end; border: 1px solid var(--rule); background: transparent; border-radius: 6px; padding: 4px 10px; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .queue-btn { display: inline-block; }
+  .rail { position: fixed; z-index: 20; left: 0; top: 0; bottom: 0; width: min(88vw, 360px); transform: translateX(-102%); transition: transform .2s ease; box-shadow: var(--shadow); padding-top: env(safe-area-inset-top, 0px); }
+  .app.rail-open .rail { transform: none; }
+  .scroll { padding-inline: 16px; }
+  .decide { padding-inline: 16px; }
+  .decide-in { grid-template-columns: minmax(0, 1fr) auto; }
+  .decide-in .note-wrap { grid-column: 1 / -1; grid-row: 2; }
+  .top { padding-inline: 16px; }
+}
+@media (max-width: 520px) {
+  .call { padding: 8px 10px; }
+  .call .long { display: none; }
+  .hdrs, .facts { grid-template-columns: minmax(0, 1fr); gap: 0 0; }
+  .hdrs dd, .facts dd { margin-bottom: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .rail { transition: none; } }
+</style>
+
+<div class="app" id="app">
+  <header class="top">
+    <button class="queue-btn" id="queueBtn" type="button" aria-controls="rail">Queue</button>
+    <h1>Golden Set Adjudication <small>CPRA 24-409 · 25-3152</small></h1>
+    <div class="progress" aria-label="Progress">
+      <div class="bar" id="bar"></div>
+      <span class="count" id="count">0 of 0 decided</span>
+    </div>
+    <span class="sync" id="sync" data-s="connecting">Connecting…</span>
+  </header>
+
+  <aside class="rail" id="rail">
+    <div class="filters">
+      <div class="seg" role="group" aria-label="Section" id="seg"></div>
+      <div class="row-ctl">
+        <select id="reqSel" aria-label="Request">
+          <option value="all">Both requests</option>
+          <option value="24-409">24-409 only</option>
+          <option value="25-3152">25-3152 only</option>
+        </select>
+        <label><input type="checkbox" id="openOnly"> Undecided only</label>
+      </div>
+    </div>
+    <ol class="list" id="list"></ol>
+    <div class="rail-foot">
+      <label><input type="checkbox" id="autoAdv" checked> Advance after a call</label>
+      <label><input type="checkbox" id="hlTog" checked> Highlight terms</label>
+      <button type="button" id="copyBtn">Copy calls</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="scroll" id="scroll">
+      <div class="record" id="record">
+        <p class="why">Loading the adjudication set…</p>
+      </div>
+    </div>
+    <div class="decide" id="decide">
+      <div class="decide-in">
+        <div class="calls" id="calls"></div>
+        <div class="note-wrap"><textarea class="note-in" id="note" rows="1" placeholder="Note (optional): why, or what made it close"></textarea></div>
+        <div class="nav">
+          <button type="button" id="prev" aria-label="Previous">←</button>
+          <button type="button" id="next" aria-label="Next">→</button>
+        </div>
+        <div class="hint" id="hint"></div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="copybox" id="copybox" hidden>
+  <span class="label">Calls as JSON. Copy this and paste it to Claude.</span>
+  <textarea id="copyText" readonly></textarea>
+  <button type="button" id="copyClose">Close</button>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+const SECTIONS = { disagree: ["Disagreements", "D"], spot: ["Spot check", "S"], synth: ["Synthetic", "Y"], all: ["All rows", ""] };
+const items = DATA.items;
+const byKey = {};
+const secN = {};
+items.forEach(it => { byKey[it.key] = it; secN[it.section] = (secN[it.section] || 0) + 1; it.num = secN[it.section]; });
+const isSynth = it => it.section === "synth";
+const validCalls = it => isSynth(it) ? ["K", "F", "D"] : ["R", "N"];
+
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem("adj:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("adj:" + k, JSON.stringify(v)); } catch (e) {} }
+};
+
+let calls = {};            // key -> {call, note, at}
+let mode = "connecting";   // db | local | readonly
+let col = null;
+const pending = new Set();
+const chains = {};
+const view = Object.assign({ section: "disagree", req: "all", openOnly: false, cur: null, auto: true, hl: true }, LS.get("view", {}));
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- term highlighting ---------- */
+const termRx = {};
+for (const [rid, r] of Object.entries(DATA.requests)) {
+  const cs = r.terms.filter(t => /^\\b[A-Z]+\\b$/.test(t));
+  const ci = r.terms.filter(t => !cs.includes(t));
+  termRx[rid] = [cs.length ? new RegExp(cs.join("|"), "g") : null, ci.length ? new RegExp(ci.join("|"), "gi") : null].filter(Boolean);
+}
+function hl(text, rid) {
+  text = String(text ?? "");
+  const spans = [];
+  for (const rx of termRx[rid] || []) {
+    rx.lastIndex = 0; let m;
+    while ((m = rx.exec(text))) { if (!m[0].length) { rx.lastIndex++; continue; } spans.push([m.index, m.index + m[0].length]); }
+  }
+  if (!spans.length) return esc(text);
+  spans.sort((a, b) => a[0] - b[0]);
+  const merged = [];
+  for (const s of spans) { const l = merged[merged.length - 1]; if (l && s[0] <= l[1]) l[1] = Math.max(l[1], s[1]); else merged.push(s.slice()); }
+  let out = "", pos = 0;
+  for (const [a, b] of merged) { out += esc(text.slice(pos, a)) + "<mark>" + esc(text.slice(a, b)) + "</mark>"; pos = b; }
+  return out + esc(text.slice(pos));
+}
+
+/* ---------- filtering ---------- */
+function visible() {
+  return items.filter(it => (view.section === "all" || it.section === view.section)
+    && (view.req === "all" || it.request_id === view.req)
+    && (!view.openOnly || !(calls[it.key] && calls[it.key].call) || it.key === view.cur));
+}
+const decided = it => !!(calls[it.key] && calls[it.key].call);
+
+/* ---------- rendering ---------- */
+function renderTop() {
+  const n = items.length, d = items.filter(decided).length;
+  $("count").textContent = `${d} of ${n} decided`;
+  const segs = ["disagree", "spot", "synth"].map(s => {
+    const all = items.filter(i => i.section === s);
+    return `<i style="width:${(all.filter(decided).length / n) * 100}%;background:var(--${s === "synth" ? "flip" : s === "spot" ? "accent" : "resp"})"></i>`;
+  });
+  $("bar").innerHTML = segs.join("");
+}
+function renderSeg() {
+  $("seg").innerHTML = Object.keys(SECTIONS).map(s => {
+    const all = s === "all" ? items : items.filter(i => i.section === s);
+    return `<button type="button" data-sec="${s}" aria-pressed="${view.section === s}">${SECTIONS[s][0]}<span>${all.filter(decided).length}/${all.length}</span></button>`;
+  }).join("");
+}
+function statusPill(it) {
+  const c = calls[it.key] && calls[it.key].call;
+  return c ? `<span class="pill" data-v="${c}">${c}</span>` : `<span class="pill">·</span>`;
+}
+function renderList() {
+  const v = visible();
+  if (!v.length) { $("list").innerHTML = `<li class="empty-list">Nothing left in this filter. Switch sections or turn off “Undecided only”.</li>`; return; }
+  $("list").innerHTML = v.map(it => {
+    const e = it.email;
+    const pre = isSynth(it) ? `intended ${it.label ? "R" : "N"}` : `pre ${it.prelabel}`;
+    return `<li><button type="button" data-key="${esc(it.key)}" aria-current="${it.key === view.cur}">
+      <span class="n">${SECTIONS[it.section][1]}${it.num}</span>
+      <span class="subj">${esc(e.subject || "(no subject)")}</span>
+      <span class="st">${statusPill(it)}</span>
+      <span class="meta">${it.request_id} · ${esc((e.date || "").slice(0, 10))} · ${pre}</span>
+    </button></li>`;
+  }).join("");
+  const cur = $("list").querySelector('[aria-current="true"]');
+  if (cur) cur.scrollIntoView({ block: "nearest" });
+}
+
+function scopePanel(rid) {
+  const r = DATA.requests[rid];
+  const open = LS.get("scopeOpen", true);
+  const roster = rid === "25-3152" ? `<details class="sub"><summary>ACPG roster: ${DATA.roster.length} people who served during the window</summary>
+      <div class="tablewrap"><table class="roster"><thead><tr><th>Name</th><th>Role</th><th>Period</th><th>Addresses</th></tr></thead><tbody>
+      ${DATA.roster.map(m => `<tr><td>${esc(m.name)}</td><td>${esc(m.role || "")}</td><td>${esc(m.period || "")}</td><td class="addr">${(m.email_addresses || []).map(esc).join("<br>")}</td></tr>`).join("")}
+      </tbody></table></div></details>` : "";
+  return `<details class="panel scope" id="scopePanel" ${open ? "open" : ""}>
+    <summary><span class="label">Request ${rid}</span><span>${esc(r.title)}</span></summary>
+    <div class="bd">
+      <div class="window"><b>Window:</b> ${esc(r.window_label)}</div>
+      <ul class="items">${r.items.map(([n, t]) => `<li><b>(${n})</b><span>${esc(t)}</span></li>`).join("")}</ul>
+      <div class="note">${esc(r.notes)}</div>
+      ${roster}
+      <details class="sub"><summary>Full request text as filed (${esc(r.request_date)})</summary>
+        <div class="legal">${esc(r.full_text)}</div>
+        <p class="note"><a href="${esc(r.url)}" target="_blank" rel="noopener">Request page on the County portal ↗</a></p>
+      </details>
+    </div>
+  </details>`;
+}
+const WIN = { in: ["in", "inside window"], out: ["out", "outside window"], edge: ["edge", "at window edge: check time zone"], unknown: ["", "no date"] };
+function emailPanel(e, rid, title, extra) {
+  const w = extra && extra.window ? WIN[extra.window] : null;
+  const att = e.attachments && e.attachments.length ? e.attachments.map(esc).join(", ") : "none";
+  const rows = [
+    ["Subject", `<span class="subject">${hl(e.subject || "(no subject)", rid)}</span>`],
+    ["From", hl(e.from, rid)], ["To", hl(e.to, rid)],
+    e.cc ? ["Cc", hl(e.cc, rid)] : null,
+    ["Date", `<span class="mono">${esc(e.date || "")}</span> ${w ? `<span class="chip ${w[0]}">${w[1]}</span>` : ""}`],
+    ["Attach.", att],
+  ].filter(Boolean);
+  return `<section class="panel ${view.hl ? "" : "nohl"}">
+    <div class="hd"><span class="label">${title}</span>${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener" style="margin-left:auto;font-size:13px">Original on County portal ↗</a>` : ""}</div>
+    <div class="bd"><dl class="hdrs">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div>
+    <pre class="body">${hl(e.body, rid)}</pre>
+  </section>`;
+}
+function realContext(it) {
+  const origin = it.origin === "produced"
+    ? `Produced by the County for ${it.request_id}`
+    : `From the ${it.origin_request} production, a candidate negative for ${it.request_id}`;
+  return `<section class="panel prelabel">
+    <div class="hd"><span class="label">Opus pre-label</span></div>
+    <div class="bd">
+      <div class="verdict"><span class="pill" data-v="${it.prelabel}">${it.prelabel}</span>
+        <span>${it.prelabel === "R" ? "Responsive" : it.prelabel === "N" ? "Not responsive" : "Unsure"} · ${esc(it.confidence)} confidence</span></div>
+      <p>${esc(it.rationale)}</p>
+      <dl class="facts"><dt>Origin</dt><dd>${esc(origin)}</dd>${it.note ? `<dt>Note</dt><dd>${esc(it.note)}</dd>` : ""}</dl>
+    </div>
+  </section>`;
+}
+function synthContext(it) {
+  const yn = v => v === true ? "yes" : v === false ? "no" : String(v);
+  return `<section class="panel prelabel">
+    <div class="hd"><span class="label">Synthetic email · edited from a real one</span></div>
+    <div class="bd">
+      <div class="verdict"><span class="pill" data-v="${it.label ? "R" : "N"}">${it.label ? "R" : "N"}</span>
+        <span>Intended label: ${it.label ? "responsive" : "not responsive"} · ${esc(it.kind.replace(/_/g, " "))}</span></div>
+      <dl class="facts">
+        <dt>Recipe</dt><dd><span class="mono">${esc(it.recipe)}</span>: ${esc(it.recipe_desc)}</dd>
+        <dt>Generator</dt><dd>${esc(it.why_label)}</dd>
+        <dt>Verifier</dt><dd>label correct: <b>${yn(it.verify_label_correct)}</b> · recipe followed: <b>${yn(it.verify_recipe_followed)}</b> · style tell: <b>${esc(it.verify_style_tell)}</b></dd>
+        <dt>Problem</dt><dd>${esc(it.verify_problem)}</dd>
+      </dl>
+    </div>
+  </section>`;
+}
+function renderMain() {
+  const it = byKey[view.cur];
+  if (!it) { $("record").innerHTML = `<p class="why">Pick a row from the queue.</p>`; renderDecide(); return; }
+  const banner = mode === "local"
+    ? `<div class="banner">Calls are being kept in this browser only, because the shared store isn't available in this view. Use <b>Copy calls</b> at the bottom of the queue to hand them to Claude.</div>`
+    : mode === "readonly" ? `<div class="banner">This view can't save calls. Open the page as its owner to record decisions.</div>` : "";
+  const sec = SECTIONS[it.section][0];
+  const why = isSynth(it) ? "Flagged by the verifier. Keep the intended label, flip it, or drop the email." : (it.why_listed || "Random spot check: pre-label and production origin agree.");
+  $("record").innerHTML = `${banner}
+    <div class="crumb"><span class="where">${sec} ${it.num} of ${secN[it.section]} · ${it.request_id}</span>
+      <h2>${esc(it.email.subject || "(no subject)")}</h2><span class="why">${esc(why)}</span></div>
+    ${scopePanel(it.request_id)}
+    ${isSynth(it) ? synthContext(it) : realContext(it)}
+    ${emailPanel(it.email, it.request_id, isSynth(it) ? "Synthetic email" : "Email", { window: it.window })}
+    ${isSynth(it) && it.source ? `<details class="panel"><summary><span class="label">Original email it was edited from</span></summary>${emailPanel(it.source, it.request_id, "Source email", {}).replace(/^<section class="panel ?/, '<section class="')}</details>` : ""}`;
+  $("scroll").scrollTop = 0;
+  const sp = $("scopePanel");
+  if (sp) sp.addEventListener("toggle", () => LS.set("scopeOpen", sp.open));
+  renderDecide();
+}
+function renderDecide() {
+  const it = byKey[view.cur];
+  if (!it) { $("calls").innerHTML = ""; return; }
+  const c = calls[it.key] || {};
+  const opts = isSynth(it)
+    ? [["K", `Keep <span class="long">as ${it.label ? "responsive" : "not responsive"}</span>`], ["F", `Flip <span class="long">to ${it.label ? "not responsive" : "responsive"}</span>`], ["D", `Drop`]]
+    : [["R", `Responsive`], ["N", `Not <span class="long">responsive</span>`]];
+  $("calls").innerHTML = opts.map(([v, l]) => `<button type="button" class="call" data-v="${v}" aria-pressed="${c.call === v}"><kbd>${v}</kbd>${l}</button>`).join("")
+    + (c.call ? `<button type="button" class="call" data-v="clear" aria-label="Clear the call">Clear</button>` : "");
+  const note = $("note");
+  if (document.activeElement !== note) note.value = c.note || "";
+  const v = visible(), i = v.findIndex(x => x.key === it.key);
+  $("prev").disabled = i <= 0; $("next").disabled = i < 0 || i >= v.length - 1;
+  $("hint").innerHTML = isSynth(it)
+    ? `<span>K keep · F flip · D drop · ← → move</span><span>Judge the edited email against the request as written.</span>`
+    : `<span>R responsive · N not responsive · ← → move</span><span>Responsiveness only. Privilege and exemptions don't matter here.</span>`;
+}
+function renderAll() { renderTop(); renderSeg(); renderList(); renderMain(); }
+function refreshStatus() { renderTop(); renderSeg(); renderList(); renderDecide(); }
+
+/* ---------- persistence ---------- */
+function setSync(s, text) { const el = $("sync"); el.dataset.s = s; el.textContent = text; }
+function persist(key) {
+  if (mode === "local") { LS.set("calls", calls); setSync("local", "Saved in this browser only"); return; }
+  if (mode === "readonly") return;
+  if (!col) { pending.add(key); LS.set("calls", calls); return; }
+  const it = byKey[key], c = calls[key];
+  setSync("saving", "Saving…");
+  const ref = col.doc(key);
+  const write = () => (c && (c.call || c.note))
+    ? ref.set({ call: c.call || null, note: c.note || "", request_id: it.request_id, section: it.section, at: c.at || new Date().toISOString() })
+    : ref.delete();
+  chains[key] = (chains[key] || Promise.resolve()).then(write)
+    .catch(err => err && err.code === "unavailable" ? new Promise(r => setTimeout(r, 400 + Math.random() * 600)).then(write) : Promise.reject(err))
+    .then(() => setSync("saved", "All calls saved"), err => {
+      if (err && err.code === "invalid_argument") { mode = "readonly"; setSync("error", "Can't save in this view"); renderMain(); }
+      else setSync("error", "Last save failed. Try the call again.");
+    });
+}
+function setCall(v) {
+  const it = byKey[view.cur]; if (!it) return;
+  if (v === "clear") { calls[it.key] = Object.assign({}, calls[it.key], { call: null, at: new Date().toISOString() }); }
+  else if (validCalls(it).includes(v)) { calls[it.key] = Object.assign({}, calls[it.key], { call: v, at: new Date().toISOString() }); }
+  else return;
+  persist(it.key);
+  refreshStatus();
+  if (v !== "clear" && view.auto) setTimeout(() => go(1, true), 180);
+}
+let noteTimer = null;
+function noteChanged() {
+  const it = byKey[view.cur]; if (!it) return;
+  calls[it.key] = Object.assign({}, calls[it.key], { note: $("note").value });
+  clearTimeout(noteTimer);
+  const key = it.key;
+  noteTimer = setTimeout(() => persist(key), 700);
+}
+
+/* ---------- navigation ---------- */
+function select(key) { view.cur = key; LS.set("view", view); renderList(); renderMain(); $("app").classList.remove("rail-open"); }
+function go(step, preferOpen) {
+  const v = visible(); let i = v.findIndex(x => x.key === view.cur);
+  if (preferOpen) {
+    for (let j = i + 1; j < v.length; j++) if (!decided(v[j])) return select(v[j].key);
+  }
+  i = Math.max(0, Math.min(v.length - 1, i + step));
+  if (v[i]) select(v[i].key);
+}
+function ensureCur() {
+  const v = visible();
+  if (!v.find(x => x.key === view.cur)) view.cur = (v.find(x => !decided(x)) || v[0] || {}).key || null;
+}
+
+/* ---------- events ---------- */
+$("seg").addEventListener("click", e => { const b = e.target.closest("button[data-sec]"); if (!b) return; view.section = b.dataset.sec; ensureCur(); LS.set("view", view); renderAll(); });
+$("reqSel").addEventListener("change", e => { view.req = e.target.value; ensureCur(); LS.set("view", view); renderAll(); });
+$("openOnly").addEventListener("change", e => { view.openOnly = e.target.checked; ensureCur(); LS.set("view", view); renderAll(); });
+$("autoAdv").addEventListener("change", e => { view.auto = e.target.checked; LS.set("view", view); });
+$("hlTog").addEventListener("change", e => { view.hl = e.target.checked; LS.set("view", view); renderMain(); });
+$("list").addEventListener("click", e => { const b = e.target.closest("button[data-key]"); if (b) select(b.dataset.key); });
+$("calls").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (b) setCall(b.dataset.v); });
+$("prev").addEventListener("click", () => go(-1));
+$("next").addEventListener("click", () => go(1));
+$("note").addEventListener("input", noteChanged);
+$("queueBtn").addEventListener("click", () => $("app").classList.toggle("rail-open"));
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target;
+  if (t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.tagName === "SELECT")) { if (e.key === "Escape") t.blur(); return; }
+  if (e.key === "ArrowRight") { e.preventDefault(); go(1); return; }
+  if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); return; }
+  const k = e.key.toUpperCase();
+  const it = byKey[view.cur];
+  if (it && validCalls(it).includes(k)) { e.preventDefault(); setCall(k); }
+});
+$("copyBtn").addEventListener("click", () => {
+  const out = {};
+  for (const [k, c] of Object.entries(calls)) if (c && (c.call || c.note)) out[k] = { call: c.call || null, note: c.note || "" };
+  const text = JSON.stringify(out, null, 1);
+  const show = () => { $("copyText").value = text; $("copybox").hidden = false; $("copyText").select(); };
+  try { navigator.clipboard.writeText(text).then(() => setSync(mode === "db" ? "saved" : "local", "Copied to clipboard"), show); } catch (err) { show(); }
+});
+$("copyClose").addEventListener("click", () => { $("copybox").hidden = true; });
+
+/* ---------- boot ---------- */
+function start(hot) {
+  if (hot && hot.view) Object.assign(view, hot.view);
+  $("reqSel").value = view.req; $("openOnly").checked = view.openOnly; $("autoAdv").checked = view.auto; $("hlTog").checked = view.hl;
+  calls = LS.get("calls", {});
+  ensureCur();
+  renderAll();
+  const useP = window.claude && window.claude.use ? window.claude.use("db") : Promise.resolve(null);
+  useP.then(db => {
+    if (!db) { mode = "local"; setSync("local", "Saved in this browser only"); renderMain(); return; }
+    col = db.collection("calls");
+    let first = true;
+    col.limit(1000).onSnapshot(snap => {
+      const fresh = {};
+      snap.docs.forEach(d => { const x = d.data(); if (x) fresh[d.id] = { call: x.call || null, note: x.note || "", at: x.at }; });
+      if (first) {
+        first = false; mode = "db";
+        // anything recorded before the store answered gets written now
+        for (const [k, c] of Object.entries(calls)) if (!fresh[k] && c && (c.call || c.note)) { fresh[k] = c; pending.add(k); }
+        calls = fresh; LS.set("calls", {});
+        pending.forEach(k => persist(k)); pending.clear();
+        if (!snap.metadata.hasPendingWrites) setSync("saved", "All calls saved");
+        ensureCur(); renderAll(); return;
+      }
+      const it = byKey[view.cur];
+      if (it && document.activeElement === $("note")) fresh[it.key] = Object.assign({}, fresh[it.key], { note: $("note").value });
+      calls = fresh;
+      refreshStatus();
+    }, err => { mode = "local"; setSync("local", "Shared store unavailable. Saving in this browser only"); renderMain(); });
+  }).catch(() => { mode = "local"; setSync("local", "Saved in this browser only"); renderMain(); });
+}
+if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => ({ view }));
+if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start); else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+</script>

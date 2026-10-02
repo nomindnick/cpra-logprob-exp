@@ -3,8 +3,8 @@
   uv run python scripts/build_golden.py
 
 Reads  data/golden/work/prelabels.jsonl, synthetic.jsonl, acpg_roster.json
-       docs/golden-adjudication.md   (the human's "your call" column: R/N for real
-                                       rows, K/F/D for flagged synthetic rows)
+       data/golden/work/adjudications.json   (the human's calls from the adjudication page: R/N for
+                                              real rows, K/F/D for flagged synthetic rows)
 Writes data/golden/emails.jsonl   real + synthetic emails, each with kind/label/request
        data/golden/pairs.jsonl    one designed pair per email
        data/golden/roster_context.txt   roster paragraph for the 25-3152 ablation
@@ -16,36 +16,21 @@ W = pathlib.Path("data/golden/work"); OUT = pathlib.Path("data/golden")
 TARGET_POS, TARGET_NEG = 75, 60
 
 
-def parse_adjudications():
-    """Return {email_id or synth id: call} from the 'your call' column of the sheet."""
-    calls = {}
-    text = pathlib.Path("docs/golden-adjudication.md").read_text()
-    emails = {e["id"]: e for e in map(json.loads, open("data/emails/sandiego.emails.jsonl"))}
-    pre = [json.loads(l) for l in open(W / "prelabels.jsonl")]
-    for line in text.splitlines():
-        if not line.startswith("|") or line.startswith("|--") or line.startswith("| #"):
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        call = cells[-1].upper()
-        if not call:
-            continue
-        if cells[1].startswith("synth:"):
-            calls[cells[1]] = call
-        else:
-            # real row: request, origin, pre, conf, subject, from, date ... -> match on request+subject+from+date
-            rid, subj, frm, date = cells[1], cells[5], cells[6], cells[7]
-            for r in pre:
-                e = emails[r["email_id"]]
-                if r["request_id"] == rid and str(e["subject"] or "")[:60].replace("|", "/").replace("\n", " ") == subj \
-                        and str(e["from"] or "")[:35].replace("|", "/") == frm and str(e["date"])[:10] == date:
-                    calls[r["email_id"]] = call
-                    break
-    return calls
+def load_adjudications():
+    """Return {item key: call}. Keys are "<request>~<email id>" for real rows, the synth id for synthetic rows.
+
+    adjudications.json is the export of the adjudication page's "calls" collection
+    ({key: {"call": "R"|"N"|"K"|"F"|"D"|null, "note": str}}); see scripts/adjudication_sheet.py.
+    """
+    f = W / "adjudications.json"
+    if not f.exists():
+        return {}
+    return {k: v["call"].upper() for k, v in json.load(open(f)).items() if v.get("call")}
 
 
 def main():
     OUT.mkdir(exist_ok=True)
-    calls = parse_adjudications()
+    calls = load_adjudications()
     emails = {e["id"]: e for e in map(json.loads, open("data/emails/sandiego.emails.jsonl"))}
     pre = [json.loads(l) for l in open(W / "prelabels.jsonl")]
     rng = random.Random(5)
@@ -55,10 +40,11 @@ def main():
         for r in pre:
             if r["request_id"] != rid:
                 continue
-            final = calls.get(r["email_id"], r["prelabel"])
+            key = f"{rid}~{r['email_id']}"
+            final = calls.get(key, r["prelabel"])
             if final == "?":
                 continue
-            adjudicated = r["email_id"] in calls
+            adjudicated = key in calls
             if final == "R" and r["origin"] == "produced":
                 pos.append((r, adjudicated))
             elif final == "N" and r["origin"] == "other_production":
