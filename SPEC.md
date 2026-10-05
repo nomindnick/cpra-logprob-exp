@@ -314,5 +314,25 @@ with prefill/decode split; roster ablation on 25-3152.
 **Operational rule:** workflows and heavy GPU runs never overlap (pause the run
 with `runs/ctl.sh pause`, resume after).
 
-**Later:** compare against open-source "Jev-like" small-model techniques (to be
-identified) as an alternative to pure logprob scoring.
+### 14.1 Later — Jev and a Jev-like open model (added 2026-10-05)
+
+Jev (typesafe.ai) is the inspiration for this experiment. Two comparison runs,
+same golden pairs and metrics as the local runs:
+
+- **Jev via its API.** Question: how much accuracy and latency does going local
+  give up? Jev is an external API, so it has the data-privacy problem local
+  models avoid; the run measures the size of that tradeoff, not whether it is
+  acceptable. The golden set is already-public produced records plus synthetic
+  edits, so sending it doesn't raise the issue being measured. Check the API
+  terms (retention, training use) first anyway. To find out before building:
+  does the API return a score/probability or only a label (AUROC and
+  recall-at-threshold need a score), and what is in its latency (network round
+  trip, their hardware) — report it as end-to-end time, not comparable
+  prefill numbers.
+- **One open-source "Jev-like" model.** Since Jev came out, several groups
+  have released open models that guess at Jev's architecture by modifying
+  Qwen models. Pick one (survey current releases at the time — don't choose
+  from memory), run it locally on Strix Halo. Question: does that architecture
+  difference beat plain first-token logprobs from a stock Qwen of similar size
+  on accuracy or latency? Use its own scoring interface if it has one; note
+  how its score is derived.
