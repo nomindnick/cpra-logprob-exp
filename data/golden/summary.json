@@ -1,21 +1,23 @@
 {
- "emails": 465,
- "adjudications_applied": 0,
- "synthetic_dropped": 35,
+ "emails": 496,
+ "adjudications_applied": 129,
+ "synthetic_dropped": 4,
  "by_request_kind": {
-  "24-409/close_call_positive": 22,
+  "24-409/close_call_positive": 25,
   "24-409/exempt_other_positive": 20,
-  "24-409/hard_negative": 41,
+  "24-409/hard_negative": 43,
+  "24-409/hard_negative_flipped": 4,
   "24-409/privileged_positive": 20,
   "24-409/real_negative": 60,
   "24-409/real_positive": 75,
-  "25-3152/close_call_positive": 12,
+  "25-3152/close_call_positive": 25,
   "25-3152/exempt_other_positive": 20,
   "25-3152/hard_negative": 40,
+  "25-3152/hard_negative_flipped": 9,
   "25-3152/privileged_positive": 20,
   "25-3152/real_negative": 60,
   "25-3152/real_positive": 75
  },
- "positives": 264,
- "negatives": 201
+ "positives": 293,
+ "negatives": 203
 }
