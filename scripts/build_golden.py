@@ -74,10 +74,14 @@ def main():
             dropped += 1; continue          # unadjudicated flag -> out
         if call == "D":
             dropped += 1; continue
+        kind = s["kind"]
         if call == "F":
+            # human overturned the intended label: keep it as its own stratum so per-kind
+            # results aren't mixed (e.g. a "hard negative" that turned out responsive)
             label = 1 - label
+            kind = f"{kind}_flipped"
         rows.append({**{k: s[k] for k in ("id", "from", "to", "cc", "date", "subject", "attachments", "body")},
-                     "request_id": s["request_id"], "kind": s["kind"], "recipe": s["recipe"], "label": label,
+                     "request_id": s["request_id"], "kind": kind, "recipe": s["recipe"], "label": label,
                      "origin": "synthetic", "adjudicated": call is not None, "rationale": s["why_label"],
                      "source_id": s["source_id"]})
     with (OUT / "emails.jsonl").open("w") as f:
