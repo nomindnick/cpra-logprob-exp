@@ -216,12 +216,12 @@ def main():
         todo = todo[:a.limit]
 
     digest, details = model_digest(a.model)
-    prompt_hash = hashlib.sha256((SYSTEM + "\n" + USER_TEMPLATE).encode()).hexdigest()[:16]
+    system, template = (SYSTEM_JSON, USER_TEMPLATE_JSON) if a.mode == "json" else (SYSTEM, USER_TEMPLATE)
+    prompt_hash = hashlib.sha256((system + "\n" + template).encode()).hexdigest()[:16]
     json.dump({
         "model": a.model, "digest": digest, "details": details,
         "mode": a.mode, "prompt_hash": prompt_hash,
-        "system": SYSTEM_JSON if a.mode == "json" else SYSTEM,
-        "user_template": USER_TEMPLATE_JSON if a.mode == "json" else USER_TEMPLATE,
+        "system": system, "user_template": template,
         "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
         "pairs": a.pairs, "extra_emails": a.extra_emails, "roster": a.roster,
         "ollama_version": json.load(urllib.request.urlopen(f"{OLLAMA}/api/version"))["version"],

@@ -7,6 +7,7 @@ Reads  data/golden/work/prelabels.jsonl, synthetic.jsonl, acpg_roster.json
                                               real rows, K/F/D for flagged synthetic rows)
 Writes data/golden/emails.jsonl   real + synthetic emails, each with kind/label/request
        data/golden/pairs.jsonl    one designed pair per email
+       data/golden/pairs_25-3152.jsonl   the 25-3152 subset (roster ablation)
        data/golden/roster_context.txt   roster paragraph for the 25-3152 ablation
        data/golden/summary.json
 """
@@ -90,6 +91,11 @@ def main():
         for r in rows:
             f.write(json.dumps({"pair_id": f"{r['request_id']}|{r['id']}", "request_id": r["request_id"],
                                 "email_id": r["id"], "label": r["label"], "kind": r["kind"], "recipe": r["recipe"]}) + "\n")
+    with (OUT / "pairs_25-3152.jsonl").open("w") as f:  # roster ablation reruns only this request
+        for r in rows:
+            if r["request_id"] == "25-3152":
+                f.write(json.dumps({"pair_id": f"{r['request_id']}|{r['id']}", "request_id": r["request_id"],
+                                    "email_id": r["id"], "label": r["label"], "kind": r["kind"], "recipe": r["recipe"]}) + "\n")
     roster = json.load(open(W / "acpg_roster.json"))
     lines = ["Members of the Alpine Community Planning Group who served at any time from 1 January 2024 through 31 May 2025 (name; role; period; email addresses used):"]
     for m in roster["members"]:
