@@ -1,0 +1,31 @@
+{
+ "model": "qwen3.5:9b",
+ "digest": "6488c96fa5faab64bb65cbd30d4289e20e6130ef535a93ef9a49f42eda893ea7",
+ "details": {
+  "parent_model": "",
+  "format": "gguf",
+  "family": "qwen35",
+  "families": [
+   "qwen35"
+  ],
+  "parameter_size": "9.7B",
+  "quantization_level": "Q4_K_M",
+  "context_length": 262144,
+  "embedding_length": 4096
+ },
+ "mode": "json_reason",
+ "prompt_hash": "73642d34d51959e9",
+ "system": "You are a public records analyst for a California county. You will be shown a California Public Records Act (CPRA) request and one email from the county's email system. Decide whether the email is responsive to the request, meaning it is a record the request is asking for. Do not consider whether the email might be exempt from disclosure; that is a separate question. Respond only with a JSON object: {\"reasoning\": \"two or three sentences\", \"responsive\": true or false, \"confidence\": a number from 0 to 1}. Write the reasoning first, then decide.",
+ "user_template": "CPRA request:\n{request}\n\nEmail:\n{email}\n\nIs this email responsive to the request? Respond in JSON.",
+ "max_body_chars": 8000,
+ "num_ctx": 8192,
+ "concurrency": 1,
+ "pairs": "data/golden/pairs_25-3152.jsonl",
+ "extra_emails": "data/golden/emails.jsonl",
+ "roster": "data/golden/roster_context.txt",
+ "fresh": true,
+ "num_gpu": null,
+ "num_batch": 8192,
+ "schema": true,
+ "ollama_version": "0.32.14"
+}

@@ -42,6 +42,13 @@ Strix vs CPU on 500 pairs: mean |Δ| 0.050 (median 0.026, max 0.64); 70 pairs > 
 with length (mean |Δ| 0.033 under 1k tokens, 0.111 over 3k; moved pairs median 2,400 tokens,
 31% truncated) — the same pattern as concurrency in `findings-sweep.md` §5.
 
+**Correction (2026-10-07):** the length dependence is mostly a Strix Halo GPU fault, not
+CPU-vs-GPU arithmetic. The Strix run used Ollama's default batch size, which on ROCm corrupts
+qwen3.5 prompts longer than 2,048 tokens (`findings-golden.md` §7). In the clean GPU setting
+(`--num-batch 8192`), GPU-vs-CPU differences on the golden set are the same for short and
+long prompts (mean |Δ| 0.044 vs 0.047 for the 4b). The laptop is CPU-only, which is the path
+that was clean on the Strix Halo, but it hasn't been checked for this fault separately.
+
 The two CPU runs (same machine, version, model, threads, temperature 0; only the power
 profile differed) also disagree on the 50-pair slice:
 

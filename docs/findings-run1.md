@@ -3,6 +3,12 @@
 **Date:** 2026-09-22 · **Status:** preliminary, one model, labels not yet adjudicated
 **Run:** `runs/qwen3.5_4b/` (metrics.json, metrics.dedupe.json; scores.jsonl kept local)
 
+> **Note (2026-10-07):** this run used Ollama's default batch size, which on the Strix Halo's
+> ROCm backend corrupts qwen3.5 state between requests and on prompts over 2,048 tokens
+> (`findings-golden.md` §7). Ranking metrics are probably close; individual scores and
+> thresholds are provisional. No clean rerun is planned; `findings-golden.md` has clean numbers
+> for this model.
+
 ## Setup
 
 - **Data:** 2,462 real produced emails from four County of San Diego CPRA requests
