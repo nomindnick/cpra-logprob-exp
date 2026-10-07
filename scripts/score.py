@@ -25,6 +25,7 @@ import urllib.request
 OLLAMA = "http://localhost:11434"
 MAX_BODY_CHARS = 8000  # ~2k tokens; SPEC §12 truncation cap. Truncation is logged per row.
 NUM_CTX = 8192
+EXTRA_OPTIONS = {}  # Ollama options from --num-gpu / --num-batch, merged into every request
 CANARY_EVERY = 100  # single-stream only: rescore a fixed pair and compare to its reference  # explicit context so no backend default silently truncates long prompts
 
 SYSTEM = (
@@ -45,6 +46,18 @@ SYSTEM_JSON = SYSTEM.replace(
     'Respond only with a JSON object: {"responsive": true or false, '
     '"confidence": a number from 0 to 1, "reasoning": "two or three sentences"}')
 USER_TEMPLATE_JSON = USER_TEMPLATE.replace("Answer yes or no.", "Respond in JSON.")
+# json_reason: same as json but the reasoning is written before the verdict (enforced by a schema)
+SYSTEM_JSON_REASON = SYSTEM.replace(
+    "Answer with a single word: yes or no.",
+    'Respond only with a JSON object: {"reasoning": "two or three sentences", '
+    '"responsive": true or false, "confidence": a number from 0 to 1}. '
+    'Write the reasoning first, then decide.')
+SCHEMA_JSON = {"type": "object", "required": ["responsive", "confidence", "reasoning"],  # --schema (json mode)
+               "properties": {"responsive": {"type": "boolean"}, "confidence": {"type": "number"},
+                              "reasoning": {"type": "string"}}}
+SCHEMA_JSON_REASON = {"type": "object", "required": ["reasoning", "responsive", "confidence"],
+                      "properties": {"reasoning": {"type": "string"}, "responsive": {"type": "boolean"},
+                                     "confidence": {"type": "number"}}}
 
 VARIANTS_YES = {"yes", " yes", "Yes", " Yes", "YES", " YES"}
 VARIANTS_NO = {"no", " no", "No", " No", "NO", " NO"}
@@ -77,7 +90,7 @@ def score_one(model, request_text, email):
     r = post("/api/chat", {
         "model": model, "stream": False, "think": False,
         "logprobs": True, "top_logprobs": 20,
-        "options": {"num_predict": 1, "temperature": 0, "num_ctx": NUM_CTX},
+        "options": {"num_predict": 1, "temperature": 0, "num_ctx": NUM_CTX, **EXTRA_OPTIONS},
         "messages": [{"role": "system", "content": SYSTEM},
                      {"role": "user", "content": USER_TEMPLATE.format(request=request_text, email=text)}],
     })
@@ -95,18 +108,23 @@ def score_one(model, request_text, email):
         "prompt_tokens": r.get("prompt_eval_count"),
         "prefill_ms": r.get("prompt_eval_duration", 0) / 1e6,
         "decode_ms": r.get("eval_duration", 0) / 1e6,
-        "total_ms": r.get("total_duration", 0) / 1e6,
+        "total_ms": (r.get("total_duration", 0) - r.get("load_duration", 0)) / 1e6,
+        "load_ms": r.get("load_duration", 0) / 1e6,
         "wall_ms": wall * 1000,
     }
 
 
-def unload(model):
+def unload(model, settle=3.0):
     """Force Ollama to drop the model (and its prompt cache); next call reloads it."""
     try:
         post("/api/generate", {"model": model, "keep_alive": 0})
+        t0 = time.time()
+        while time.time() - t0 < 30 and any(
+                m["name"] == model for m in json.load(urllib.request.urlopen(f"{OLLAMA}/api/ps"))["models"]):
+            time.sleep(0.05)
     except Exception:
         pass
-    time.sleep(3)
+    time.sleep(settle)
 
 
 def score_guarded(model, request_text, email, reloads):
@@ -124,15 +142,18 @@ def score_guarded(model, request_text, email, reloads):
     return s
 
 
-def score_json(model, request_text, email):
+def score_json(model, request_text, email, reason_first=False, schema=False):
     """The 2025 approach: generate a JSON verdict with self-reported confidence.
-    score = P(responsive) = confidence if responsive else 1 - confidence."""
+    score = P(responsive) = confidence if responsive else 1 - confidence.
+    reason_first: the schema puts "reasoning" before "responsive", so the verdict follows the reasoning."""
     text, truncated = render_email(email)
     t0 = time.perf_counter()
     r = post("/api/chat", {
-        "model": model, "stream": False, "think": False, "format": "json",
-        "options": {"num_predict": 300, "temperature": 0, "num_ctx": NUM_CTX},
-        "messages": [{"role": "system", "content": SYSTEM_JSON},
+        "model": model, "stream": False, "think": False,
+        "format": SCHEMA_JSON_REASON if reason_first else SCHEMA_JSON if schema else "json",
+        "options": {"num_predict": 500 if reason_first else 300, "temperature": 0, "num_ctx": NUM_CTX,
+                    **EXTRA_OPTIONS},
+        "messages": [{"role": "system", "content": SYSTEM_JSON_REASON if reason_first else SYSTEM_JSON},
                      {"role": "user", "content": USER_TEMPLATE_JSON.format(request=request_text, email=text)}],
     })
     wall = time.perf_counter() - t0
@@ -156,7 +177,8 @@ def score_json(model, request_text, email):
         "prompt_tokens": r.get("prompt_eval_count"), "gen_tokens": r.get("eval_count"),
         "prefill_ms": r.get("prompt_eval_duration", 0) / 1e6,
         "decode_ms": r.get("eval_duration", 0) / 1e6,
-        "total_ms": r.get("total_duration", 0) / 1e6,
+        "total_ms": (r.get("total_duration", 0) - r.get("load_duration", 0)) / 1e6,
+        "load_ms": r.get("load_duration", 0) / 1e6,
         "wall_ms": wall * 1000,
     }
 
@@ -179,8 +201,21 @@ def main():
     ap.add_argument("--limit", type=int)
     ap.add_argument("--concurrency", type=int, default=1)
     ap.add_argument("--tag", help="run directory name (default: model name, ':' -> '_')")
-    ap.add_argument("--mode", choices=["logprob", "json"], default="logprob",
-                    help="json = generate a JSON verdict with self-reported confidence (2025 baseline)")
+    ap.add_argument("--mode", choices=["logprob", "json", "json_reason"], default="logprob",
+                    help="json = generate a JSON verdict with self-reported confidence (2025 baseline); "
+                         "json_reason = the same with the reasoning written before the verdict")
+    ap.add_argument("--num-gpu", type=int,
+                    help="layers to offload (Ollama num_gpu); 0 = CPU only (reference runs). The upstream "
+                         "workaround for the ROCm qwen35 state bug (all but layer 0) broke the model on 0.32.14")
+    ap.add_argument("--schema", action="store_true",
+                    help="json mode: constrain output to the responsive/confidence/reasoning schema (json_reason "
+                         "always uses its schema); without it, format=json lets the model pick its own keys")
+    ap.add_argument("--num-batch", type=int,
+                    help="prompt-processing batch size (Ollama num_batch); >= the longest prompt keeps prefill in one "
+                         "batch (on ROCm, qwen35 state is corrupted across 2,048-token batch boundaries)")
+    ap.add_argument("--fresh", action="store_true",
+                    help="unload the model before every call, so no state carries over between pairs (at the "
+                         "default batch size, Ollama 0.32.14 on ROCm leaks the previous prompt into qwen3.5 4b/9b)")
     ap.add_argument("--rescore-invalid", action="store_true",
                     help="drop rows whose score is None or errored, then resume (backend glitches)")
     a = ap.parse_args()
@@ -216,14 +251,25 @@ def main():
         todo = todo[:a.limit]
 
     digest, details = model_digest(a.model)
-    system, template = (SYSTEM_JSON, USER_TEMPLATE_JSON) if a.mode == "json" else (SYSTEM, USER_TEMPLATE)
+    if a.num_gpu is not None:
+        EXTRA_OPTIONS["num_gpu"] = a.num_gpu
+    if a.num_batch is not None:
+        EXTRA_OPTIONS["num_batch"] = a.num_batch
+    if a.fresh and a.concurrency != 1:
+        sys.exit("--fresh needs --concurrency 1")
+    if details.get("family") == "qwen35" and a.num_batch is None and a.num_gpu != 0:
+        print("warning: qwen35 model at the default batch size; on the Strix Halo (ROCm) qwen3.5 4b/9b scores are "
+              "corrupted this way. Use --num-batch 8192 (docs/findings-golden.md §7).", file=sys.stderr)
+    system, template = {"logprob": (SYSTEM, USER_TEMPLATE), "json": (SYSTEM_JSON, USER_TEMPLATE_JSON),
+                        "json_reason": (SYSTEM_JSON_REASON, USER_TEMPLATE_JSON)}[a.mode]
     prompt_hash = hashlib.sha256((system + "\n" + template).encode()).hexdigest()[:16]
     json.dump({
         "model": a.model, "digest": digest, "details": details,
         "mode": a.mode, "prompt_hash": prompt_hash,
         "system": system, "user_template": template,
         "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
-        "pairs": a.pairs, "extra_emails": a.extra_emails, "roster": a.roster,
+        "pairs": a.pairs, "extra_emails": a.extra_emails, "roster": a.roster, "fresh": a.fresh,
+        "num_gpu": a.num_gpu, "num_batch": a.num_batch, "schema": a.schema or a.mode == "json_reason",
         "ollama_version": json.load(urllib.request.urlopen(f"{OLLAMA}/api/version"))["version"],
     }, (out_dir / "run.json").open("w"), indent=1)
 
@@ -246,8 +292,11 @@ def main():
 
     def work(p):
         try:
-            if a.mode == "json":
-                s = score_json(a.model, requests[p["request_id"]], emails[p["email_id"]])
+            if a.fresh:
+                unload(a.model, settle=0)
+            if a.mode in ("json", "json_reason"):
+                s = score_json(a.model, requests[p["request_id"]], emails[p["email_id"]],
+                               reason_first=a.mode == "json_reason", schema=a.schema)
             else:
                 s = score_guarded(a.model, requests[p["request_id"]], emails[p["email_id"]], reloads)
         except Exception as ex:
@@ -256,8 +305,12 @@ def main():
                 "label": p["label"], "kind": p["kind"], **s}
 
     # warm-up so model load time doesn't land on the first row; set the canary reference
-    if todo and a.mode == "json":
-        score_json(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]])
+    # (--fresh: every call starts from a freshly loaded model, so neither applies)
+    if a.fresh:
+        pass
+    elif todo and a.mode != "logprob":
+        score_json(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]],
+                   reason_first=a.mode == "json_reason", schema=a.schema)
     elif todo:
         score_one(a.model, requests[todo[0]["request_id"]], emails[todo[0]["email_id"]])
         if not check_canary():
@@ -269,7 +322,7 @@ def main():
         for row in ex.map(work, todo):
             f.write(json.dumps(row) + "\n")
             n += 1
-            if a.mode == "logprob" and a.concurrency == 1 and n % CANARY_EVERY == 0 and not check_canary():
+            if a.mode == "logprob" and not a.fresh and a.concurrency == 1 and n % CANARY_EVERY == 0 and not check_canary():
                 print(f"  canary drifted at {n}; unloading {a.model}", file=sys.stderr)
                 reloads[0] += 1
                 unload(a.model)

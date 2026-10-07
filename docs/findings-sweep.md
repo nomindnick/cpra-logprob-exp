@@ -1,10 +1,11 @@
 # Model sweep — five local models, same data, same prompt
 
-**Date:** 2026-09-25 · **Status:** preliminary; raw (unadjudicated) labels
+**Date:** 2026-09-25 · **Status:** preliminary; raw (unadjudicated) labels ·
+**qwen3.5 rows under correction** (see the note below the results table)
 **Runs:** `runs/*_ctx8k*/metrics.json` (full set), `runs/*_lat*/` (500-pair latency subset)
 
 Same setup as `findings-run1.md`: 9,848 (request, email) pairs from four San Diego County
-productions, first-token yes/no logprobs via Ollama 0.32.14, `num_ctx=8192`, thinking off,
+productions, first-token yes/no logprobs via Ollama 0.32.14 (ROCm 7.2), `num_ctx=8192`, thinking off,
 temperature 0. Quality runs used concurrency 4 for Qwen and single-stream for Gemma (see §4).
 Latency is from the fixed 500-pair subset, single-stream, median per call.
 
@@ -19,6 +20,15 @@ Latency is from the fixed 500-pair subset, single-stream, median per call.
 | gemma4:12b | 12B | 0.917 | 0.82 | 72% | 49% | 0%* | 2,127 | 880 |
 
 \* gemma4:12b's 99% threshold is 0.000 — see §3.
+
+> **Correction (2026-10-07).** The qwen3.5:4b and 9b rows were scored at Ollama's default
+> batch size, which on this ROCm build corrupts these models' recurrent state: state carries
+> over between requests, and prompts longer than 2,048 tokens are garbled
+> (`findings-golden.md` §7). On the golden set, the equivalent runs ranked about as well as
+> clean runs (AUROC within 0.01), but individual scores moved, and long prompts were hit
+> hardest. Treat the qwen3.5 rows' thresholds and eliminated-% figures here as provisional; the
+> sweep won't be rerun, and the golden set (`findings-golden.md`) is the clean comparison of these
+> models. The Gemma rows were not tested for this fault.
 
 All Q4_K_M. Latency scales with parameter count, roughly 90–100 ms per billion
 parameters per 1,500-token email on this iGPU. Every model has recall ≥ 0.95 on
@@ -70,7 +80,7 @@ calibrated head.
 ## 4. Backend finding: Gemma 4 on Ollama silently corrupts
 
 The first Gemma runs were unusable and had to be redone. On this Ollama build
-(0.32.14, Vulkan, Strix Halo), the Gemma 4 models enter a state where the
+(0.32.14, ROCm, Strix Halo), the Gemma 4 models enter a state where the
 first-token distribution becomes `<unused49>` with uniform logprobs, and stay
 there until the model is unloaded. Not caused by concurrency or prompt length;
 a freshly loaded model is clean. The 12b full run produced 9,842 garbage rows
@@ -91,17 +101,21 @@ failure produces confident-looking output for hours.
 
 Same 500 pairs, qwen3.5:4b, concurrency 4 vs single-stream: AUROC 0.944 vs 0.942,
 but 44 pairs moved by >0.1 and 5 by >0.3 (max 0.62). The moved pairs are long
-(median 2,800 tokens vs 1,565; 45% truncated) and mid-scored. Batched prefill
-splits long prompts into different micro-batches and the 4-bit numerics diverge
-near the decision boundary. Ranking metrics are unaffected; a fixed production
-threshold applied to long emails is not. Report thresholds from single-stream runs.
+(median 2,800 tokens vs 1,565; 45% truncated) and mid-scored. Ranking metrics are
+unaffected; a fixed production threshold applied to long emails is not.
+
+**Correction (2026-10-07):** the original explanation here (4-bit arithmetic diverging in
+different prefill micro-batches) was wrong. Both runs were at the default batch size, where
+the ROCm backend corrupts qwen3.5 state on prompts over 2,048 tokens (`findings-golden.md`
+§7); that is why the moved pairs are long. In the clean setting (`--num-batch 8192`),
+GPU-vs-CPU differences on the golden set don't grow with prompt length.
 
 ## 6. Hypothesis status
 
 | | status |
 |---|---|
 | H1 latency ≫ JSON generation | supported (decode is 0 of 0.7–2.1 s per email) |
-| H2 ≥98% recall with >50% eliminated | **met by qwen3.5:9b** (54%) on raw labels; not by any 4B model (40–42%) |
+| H2 ≥98% recall with >50% eliminated | **met by qwen3.5:9b** (54%) on raw labels; not by any 4B model (40–42%); qwen3.5 figures provisional (see correction under §1) |
 | H3 score tracks error rate | supported for Qwen; **fails for Gemma** despite similar AUROC |
 | H4 reranker baseline | not run |
 | H5 quantization | not run (all Q4_K_M) |
