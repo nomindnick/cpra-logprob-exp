@@ -57,12 +57,12 @@ def main():
         neg.sort(key=lambda x: (not x[1], x[0]["confidence"] != "high", rng.random()))
         for r, adj in pos[:TARGET_POS]:
             e = emails[r["email_id"]]
-            rows.append({**{k: e[k] for k in ("id", "from", "to", "cc", "date", "subject", "attachments", "body")},
+            rows.append({**{k: e[k] for k in ("id", "from", "to", "cc", "bcc", "delivered_to", "date", "subject", "attachments", "body")},
                          "request_id": rid, "kind": "real_positive", "recipe": None, "label": 1,
                          "origin": r["origin"], "adjudicated": adj, "rationale": r["rationale"]})
         for r, adj in neg[:TARGET_NEG]:
             e = emails[r["email_id"]]
-            rows.append({**{k: e[k] for k in ("id", "from", "to", "cc", "date", "subject", "attachments", "body")},
+            rows.append({**{k: e[k] for k in ("id", "from", "to", "cc", "bcc", "delivered_to", "date", "subject", "attachments", "body")},
                          "request_id": rid, "kind": "real_negative", "recipe": None, "label": 0,
                          "origin": r["origin"], "adjudicated": adj, "rationale": r["rationale"]})
     dropped = 0

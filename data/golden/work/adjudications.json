@@ -355,6 +355,10 @@
   "call": "R",
   "note": ""
  },
+ "25-3152~sandiego:25-3152:48518148": {
+  "call": "R",
+  "note": ""
+ },
  "25-3152~sandiego:25-3152:48518191": {
   "call": "N",
   "note": ""
@@ -380,6 +384,10 @@
   "note": ""
  },
  "synth:24-409:00:05": {
+  "call": "K",
+  "note": ""
+ },
+ "synth:24-409:02:01": {
   "call": "K",
   "note": ""
  },
@@ -420,6 +428,10 @@
   "note": ""
  },
  "synth:24-409:06:05": {
+  "call": "D",
+  "note": ""
+ },
+ "synth:24-409:07:09": {
   "call": "D",
   "note": ""
  },
@@ -475,44 +487,48 @@
   "call": "K",
   "note": ""
  },
+ "synth:25-3152:14:02": {
+  "call": "K",
+  "note": ""
+ },
  "synth:25-3152:15:00": {
   "call": "D",
   "note": ""
  },
  "synth:25-3152:15:01": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:02": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:03": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:04": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:05": {
-  "call": "F",
+  "call": "K",
   "note": ""
  },
  "synth:25-3152:15:06": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:07": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:08": {
-  "call": "F",
-  "note": ""
+  "call": "K",
+  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
  },
  "synth:25-3152:15:09": {
-  "call": "F",
+  "call": "K",
   "note": ""
  }
 }

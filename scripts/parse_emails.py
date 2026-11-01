@@ -9,6 +9,8 @@ Writes data/emails/sandiego.requests.jsonl   (request_id, request_text as plain 
 
 The committed JSONL is the dataset of record; raw files are re-fetchable from the
 manifests. Attachments are recorded by name only (SPEC §7: phase 1 excludes them).
+Blind recipients: "bcc" is the Bcc header (sent items); "delivered_to" is the receiving
+mailbox when it isn't already in To/Cc/Bcc (a bcc'd copy in someone's inbox).
 """
 import email
 import email.policy
@@ -43,7 +45,8 @@ def parse_msg(path):
     m = extract_msg.openMsg(str(path))
     try:
         return {
-            "subject": m.subject, "from": m.sender, "to": m.to, "cc": m.cc,
+            "subject": m.subject, "from": m.sender, "to": m.to, "cc": m.cc, "bcc": m.bcc,
+            "delivered_to": None,  # no transport headers in these .msg exports
             "date": m.date.isoformat() if m.date else None,
             "message_id": m.messageId, "in_reply_to": m.inReplyTo,
             "attachments": [a.longFilename or a.shortFilename or "" for a in m.attachments],
@@ -67,16 +70,21 @@ def parse_eml(path):
         d = email.utils.parsedate_to_datetime(d).isoformat() if d else None
     except Exception:
         pass
+    shown = " ".join(str(msg.get(h) or "") for h in ("To", "Cc", "Bcc")).lower()
+    delivered = [a for a in dict.fromkeys(str(v).strip() for h in ("Delivered-To", "X-Original-To")
+                                          for v in msg.get_all(h) or [])
+                 if a and a.lower() not in shown]
     return {
         "subject": msg.get("Subject"), "from": msg.get("From"), "to": msg.get("To"),
-        "cc": msg.get("Cc"), "date": d, "message_id": msg.get("Message-ID"),
+        "cc": msg.get("Cc"), "bcc": msg.get("Bcc"), "delivered_to": ", ".join(delivered) or None,
+        "date": d, "message_id": msg.get("Message-ID"),
         "in_reply_to": msg.get("In-Reply-To"),
         "attachments": [p.get_filename() for p in msg.iter_attachments() if p.get_filename()],
         "body": norm_ws(body),
     }
 
 
-HDR = re.compile(r"^(From|Sent|To|Cc|Subject):\s*(.*)$", re.M)
+HDR = re.compile(r"^(From|Sent|To|Cc|Bcc|Subject):\s*(.*)$", re.M)
 
 
 def parse_pdf(path):
@@ -87,7 +95,8 @@ def parse_pdf(path):
         hdr.setdefault(k.lower(), v.strip())
     return {
         "subject": hdr.get("subject"), "from": hdr.get("from"), "to": hdr.get("to"),
-        "cc": hdr.get("cc"), "date": hdr.get("sent"), "message_id": None, "in_reply_to": None,
+        "cc": hdr.get("cc"), "bcc": hdr.get("bcc"), "delivered_to": None,
+        "date": hdr.get("sent"), "message_id": None, "in_reply_to": None,
         "attachments": [], "body": norm_ws(text),
     }
 

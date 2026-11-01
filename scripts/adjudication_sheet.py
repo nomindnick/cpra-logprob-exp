@@ -10,13 +10,64 @@ Writes data/golden/work/adjudication_items.json   one record per row to adjudica
        docs/golden-adjudication.html             the page published as the adjudication artifact
 
 Rows: every disagreement between pre-label and production origin, every '?', a random 20%
-of agreements per request, and every synthetic email the verifier flagged. Calls made on the
-page are exported to data/golden/work/adjudications.json, which build_golden.py reads.
+of agreements per request, and every synthetic email the verifier flagged. Rows in RECHECK move
+to their own section with the question to resolve (added ones need not be in the sets above).
+Calls made on the page are exported to data/golden/work/adjudications.json, which
+build_golden.py reads.
 """
 import json, pathlib, random, glob, datetime, re
 
+from score import MAX_BODY_CHARS
+
 W = pathlib.Path("data/golden/work")
 SAMPLE_RATE, SEED = 0.20, 409
+
+# Golden rows questioned after reading the models' reasoning (docs/findings-golden.md §9). On the
+# page a recheck row counts as decided only once a call is made on or after RECHECK_SINCE, so an
+# earlier call has to be confirmed or changed.
+RECHECK_SINCE = "2026-10-28"
+SAN_JOSE = ("Is a purely personal message a record this request reaches? City of San Jose v. Superior Court "
+            "(2017) 2 Cal.5th 608 treats only writings relating to the conduct of the public's business as "
+            "public records. The screening prompt says nothing about that threshold.")
+RECHECK = {
+    "synth:25-3152:15:05":
+        "SDG&E writes to Chair Lyon about the electrical service upgrade at his own home. It is inside the window "
+        "and has a member on one side and an outside entity on the other, so item 4 read literally covers it, but "
+        "nothing in it concerns the group's business. " + SAN_JOSE,
+    "synth:25-3152:15:09":
+        "Chair Lyon forwards his daughter's Girl Scout cookie order form to every sitting member, from his ACPG "
+        "address and over his Chair signature. Member to member inside the window, so item 2 read literally "
+        "covers it, but the content is personal. Same question as 15:05: " + SAN_JOSE,
+    "25-3152~sandiego:25-3152:48518148":
+        "Rendering fix. Russell Walsh sent this with no visible recipients; the raw message shows it was delivered "
+        "to Chair Lyon's ACPG mailbox, so he was bcc'd. Earlier versions of this page and of the model prompt showed "
+        "an empty To line. Both now show the Delivered-To address. Confirm the label, or change it if the header "
+        "changes your read.",
+    "synth:25-3152:14:02":
+        "The edit added one line to a real APG report (\"Thank you Travis and the Alpine CPG for sending us a copy of "
+        "yours\"), but it sits at character 8,778, after the point where models stop reading. The models still see "
+        "Chair Lyon as one of 27 To recipients, which makes it responsive under item 4 by itself. Keep it as a test "
+        "of whether one member among many recipients is enough, or drop it because the intended hook is invisible.",
+    "synth:24-409:06:01":
+        "Stephanie Gaines's out-of-office auto-reply to Megan Otto at Geosyntec (subject \"June Accrual Estimate\"). "
+        "Both are named in item 4. The only reference to Geosyntec is Otto's email address, and no person wrote "
+        "the reply. Flagged as debatable after the earlier call.",
+    "synth:24-409:02:01":
+        "The only hook is Dr. Frank's quoted signature, \"UC San Diego - Dept of Urban Studies and Planning\", at "
+        "character 15,664, well past where models stop reading. In the part they see, UCSD appears only in email "
+        "addresses, and item 2 needs UCSD together with USP, GPS, Hinds or Lerner. The verifier also asked to "
+        "remove a sentence the edit invented (\"Rami is out next week, so Murtaza will cover…\"); it is still "
+        "there. Keep it to count a miss the system would really make, or drop it because no model can see the hook.",
+    "24-409~sandiego:24-409:33732508":
+        "The label stands, but the pre-label's reasoning is wrong. It says the email never mentions the RWER, but "
+        "the attachment names quoted in the body (\"OSEJ_RWER_Fact Sheet\", \"UCSD_SDC RWER_4-26 Meeting "
+        "Handout…\") appear about 6,200 characters in, inside what the models read. Confirm the call unless you "
+        "see it differently.",
+    "synth:24-409:07:09":
+        "A member of the public asks Elise Ruiz to present and mentions \"RDF (refuse derived fuel)\", not the "
+        "Regional Decarbonization Framework. Item 4 reads like a list of search terms in mail to or from named "
+        "people, Elise Ruiz among them, so a literal term hit is arguable. Minor.",
+}
 
 SCOPE = {
     "24-409": {
@@ -96,7 +147,30 @@ def window_status(rid, date):
 
 
 def email_view(e):
-    return {k: e.get(k) for k in ("id", "from", "to", "cc", "date", "subject", "attachments", "body", "url")}
+    return {k: e.get(k) for k in ("id", "from", "to", "cc", "bcc", "delivered_to", "date", "subject",
+                                  "attachments", "body", "url")}
+
+
+def real_item(r, e, section, why):
+    rid = r["request_id"]
+    return {
+        "key": f"{rid}~{r['email_id']}", "section": section, "request_id": rid, "kind": "real",
+        "origin": r["origin"], "origin_request": r["email_id"].split(":")[1],
+        "prelabel": r["prelabel"], "confidence": r["confidence"], "rationale": r["rationale"],
+        "note": r.get("note") or "", "why_listed": why,
+        "window": window_status(rid, e["date"]), "email": email_view(e),
+    }
+
+
+def synth_item(s, src):
+    return {
+        "key": s["id"], "section": "synth", "request_id": s["request_id"], "kind": s["kind"], "recipe": s["recipe"],
+        "recipe_desc": RECIPE_NOTE.get(f"{s['kind']}/{s['recipe']}", ""), "label": s["label"],
+        "why_label": s["why_label"], "verify_label_correct": s["verify_label_correct"],
+        "verify_recipe_followed": s["verify_recipe_followed"], "verify_style_tell": s["verify_style_tell"],
+        "verify_problem": s["verify_problem"], "window": window_status(s["request_id"], s["date"]),
+        "email": email_view(s), "source": email_view(src) if src else None,
+    }
 
 
 def main():
@@ -133,41 +207,39 @@ def main():
         for section, chosen in (("disagree", dis), ("spot", [(r, None) for r in spot])):
             chosen = sorted(chosen, key=lambda x: (emails[x[0]["email_id"]]["date"] or ""))
             for r, why in chosen:
-                e = emails[r["email_id"]]
-                items.append({
-                    "key": f"{rid}~{r['email_id']}", "section": section, "request_id": rid, "kind": "real",
-                    "origin": r["origin"], "origin_request": r["email_id"].split(":")[1],
-                    "prelabel": r["prelabel"], "confidence": r["confidence"], "rationale": r["rationale"],
-                    "note": r.get("note") or "", "why_listed": why,
-                    "window": window_status(rid, e["date"]), "email": email_view(e),
-                })
+                items.append(real_item(r, emails[r["email_id"]], section, why))
     for s in synth:
         flagged = (s["verify_label_correct"] is False or s["verify_recipe_followed"] is False
                    or s["verify_style_tell"] == "obvious")
         if not flagged:
             continue
-        src = emails.get(s["source_id"])
-        items.append({
-            "key": s["id"], "section": "synth", "request_id": s["request_id"], "kind": s["kind"], "recipe": s["recipe"],
-            "recipe_desc": RECIPE_NOTE.get(f"{s['kind']}/{s['recipe']}", ""), "label": s["label"],
-            "why_label": s["why_label"], "verify_label_correct": s["verify_label_correct"],
-            "verify_recipe_followed": s["verify_recipe_followed"], "verify_style_tell": s["verify_style_tell"],
-            "verify_problem": s["verify_problem"], "window": window_status(s["request_id"], s["date"]),
-            "email": email_view(s), "source": email_view(src) if src else None,
-        })
+        items.append(synth_item(s, emails.get(s["source_id"])))
+
+    by_key = {i["key"]: i for i in items}
+    pre_by_key = {f"{r['request_id']}~{r['email_id']}": r for r in pre}
+    synth_by_id = {s["id"]: s for s in synth}
+    recheck = []
+    for key, question in RECHECK.items():
+        it = by_key.pop(key, None)
+        if it is None:
+            it = (synth_item(synth_by_id[key], emails.get(synth_by_id[key]["source_id"])) if key in synth_by_id
+                  else real_item(pre_by_key[key], emails[pre_by_key[key]["email_id"]], "recheck", None))
+        recheck.append({**it, "section": "recheck", "recheck": question})
+    items = recheck + list(by_key.values())
 
     req_out = {}
     for rid, sc in SCOPE.items():
         req_out[rid] = {**sc, "request_date": requests[rid]["request_date"], "departments": requests[rid]["departments"],
                         "url": requests[rid]["url"], "full_text": requests[rid]["request_text"]}
-    data = {"generated": datetime.date.today().isoformat(), "requests": req_out, "roster": roster, "items": items}
+    data = {"generated": datetime.date.today().isoformat(), "recheck_since": RECHECK_SINCE,
+            "max_body_chars": MAX_BODY_CHARS, "requests": req_out, "roster": roster, "items": items}
     json.dump(data, (W / "adjudication_items.json").open("w"), ensure_ascii=False, indent=1)
 
     write_markdown(data)
     tpl = pathlib.Path("scripts/adjudication_page.html").read_text()
     blob = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     pathlib.Path("docs/golden-adjudication.html").write_text(tpl.replace("/*__DATA__*/null", blob))
-    counts = {s: sum(1 for i in items if i["section"] == s) for s in ("disagree", "spot", "synth")}
+    counts = {s: sum(1 for i in items if i["section"] == s) for s in ("recheck", "disagree", "spot", "synth")}
     print(json.dumps(counts))
 
 
@@ -195,16 +267,19 @@ def write_markdown(data):
             for m in data["roster"]:
                 L.append(f"| {m['name']} | {m.get('role','')} | {m.get('period','')} | {', '.join(m.get('email_addresses', []))} |")
             L.append("")
-    names = {"disagree": "Disagreements and unclear", "spot": "Random 20% of agreements (spot check)",
+    names = {"recheck": f"Recheck (calls made before {data['recheck_since']} need confirming)",
+             "disagree": "Disagreements and unclear", "spot": "Random 20% of agreements (spot check)",
              "synth": "Synthetic emails flagged by the verifier"}
-    for sec in ("disagree", "spot", "synth"):
+    for sec in ("recheck", "disagree", "spot", "synth"):
         rows = [i for i in data["items"] if i["section"] == sec]
         L += [f"## {names[sec]} ({len(rows)})", ""]
         for n, i in enumerate(rows, 1):
             e = i["email"]
             L += [f"### {sec[0].upper()}{n} · {i['request_id']} · {e['subject'] or '(no subject)'}", "",
                   f"`{i['key']}`", ""]
-            if sec == "synth":
+            if i.get("recheck"):
+                L += [f"**Recheck:** {i['recheck']}", ""]
+            if i["kind"] != "real":
                 L += [f"- **Kind / recipe:** {i['kind']} / {i['recipe']} — {i['recipe_desc']}",
                       f"- **Intended label:** {'responsive (1)' if i['label'] else 'not responsive (0)'}",
                       f"- **Why (generator):** {i['why_label']}",
@@ -218,14 +293,15 @@ def write_markdown(data):
                 if i["note"]:
                     L.append(f"- **Note:** {i['note']}")
             L += [f"- **From:** {e['from']}", f"- **To:** {e['to']}"]
-            if e.get("cc"):
-                L.append(f"- **Cc:** {e['cc']}")
+            for k, name in (("cc", "Cc"), ("bcc", "Bcc"), ("delivered_to", "Delivered-To")):
+                if e.get(k):
+                    L.append(f"- **{name}:** {e[k]}")
             L += [f"- **Date:** {e['date']} (window: {i['window']})",
                   f"- **Attachments:** {', '.join(e['attachments']) if e.get('attachments') else 'none'}"]
             if e.get("url"):
                 L.append(f"- **Original:** {e['url']}")
             L += ["", fence(e["body"]), ""]
-            if sec == "synth" and i.get("source"):
+            if i["kind"] != "real" and i.get("source"):
                 L += ["<details><summary>Original email it was edited from</summary>", "", fence(i["source"]["body"]), "", "</details>", ""]
     pathlib.Path("docs/golden-adjudication.md").write_text("\n".join(L) + "\n")
 

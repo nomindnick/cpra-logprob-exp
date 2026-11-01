@@ -25,14 +25,21 @@ import urllib.request
 OLLAMA = "http://localhost:11434"
 MAX_BODY_CHARS = 8000  # ~2k tokens; SPEC §12 truncation cap. Truncation is logged per row.
 NUM_CTX = 8192
+RENDER = 2  # email header rendering; 2 (2026-10-28) adds Bcc and Delivered-To lines when present
+PROMPT = 2  # screening instructions; 2 (2026-10-31) adds NAMED_RULE (--prompt 1 runs the original)
 EXTRA_OPTIONS = {}  # Ollama options from --num-gpu / --num-batch, merged into every request
 CANARY_EVERY = 100  # single-stream only: rescore a fixed pair and compare to its reference  # explicit context so no backend default silently truncates long prompts
 
+NAMED_RULE = (
+    "If the request covers communications sent or received by named people or groups, an email "
+    "to or from one of them is responsive whatever its subject, unless it is purely personal and "
+    "has nothing to do with public business. "
+)
 SYSTEM = (
     "You are a public records analyst for a California county. You will be shown a "
     "California Public Records Act (CPRA) request and one email from the county's "
     "email system. Decide whether the email is responsive to the request, meaning "
-    "it is a record the request is asking for. Do not consider whether the email "
+    "it is a record the request is asking for. " + NAMED_RULE + "Do not consider whether the email "
     "might be exempt from disclosure; that is a separate question. "
     "Answer with a single word: yes or no."
 )
@@ -69,8 +76,9 @@ def render_email(e):
     if truncated:
         body = body[:MAX_BODY_CHARS] + "\n[... truncated]"
     hdr = [f"From: {e.get('from') or ''}", f"To: {e.get('to') or ''}"]
-    if e.get("cc"):
-        hdr.append(f"Cc: {e['cc']}")
+    for k, name in (("cc", "Cc"), ("bcc", "Bcc"), ("delivered_to", "Delivered-To")):
+        if e.get(k):
+            hdr.append(f"{name}: {e[k]}")
     hdr += [f"Date: {e.get('date') or ''}", f"Subject: {e.get('subject') or ''}"]
     if e.get("attachments"):
         hdr.append("Attachments: " + ", ".join(e["attachments"]))
@@ -216,6 +224,8 @@ def main():
     ap.add_argument("--fresh", action="store_true",
                     help="unload the model before every call, so no state carries over between pairs (at the "
                          "default batch size, Ollama 0.32.14 on ROCm leaks the previous prompt into qwen3.5 4b/9b)")
+    ap.add_argument("--prompt", type=int, choices=[1, 2], default=PROMPT,
+                    help="screening instructions version (1: without NAMED_RULE, as before 2026-10-31)")
     ap.add_argument("--rescore-invalid", action="store_true",
                     help="drop rows whose score is None or errored, then resume (backend glitches)")
     a = ap.parse_args()
@@ -260,14 +270,17 @@ def main():
     if details.get("family") == "qwen35" and a.num_batch is None and a.num_gpu != 0:
         print("warning: qwen35 model at the default batch size; on the Strix Halo (ROCm) qwen3.5 4b/9b scores are "
               "corrupted this way. Use --num-batch 8192 (docs/findings-golden.md §7).", file=sys.stderr)
+    if a.prompt == 1:
+        global SYSTEM, SYSTEM_JSON, SYSTEM_JSON_REASON
+        SYSTEM, SYSTEM_JSON, SYSTEM_JSON_REASON = (s.replace(NAMED_RULE, "") for s in (SYSTEM, SYSTEM_JSON, SYSTEM_JSON_REASON))
     system, template = {"logprob": (SYSTEM, USER_TEMPLATE), "json": (SYSTEM_JSON, USER_TEMPLATE_JSON),
                         "json_reason": (SYSTEM_JSON_REASON, USER_TEMPLATE_JSON)}[a.mode]
     prompt_hash = hashlib.sha256((system + "\n" + template).encode()).hexdigest()[:16]
     json.dump({
         "model": a.model, "digest": digest, "details": details,
-        "mode": a.mode, "prompt_hash": prompt_hash,
+        "mode": a.mode, "prompt": a.prompt, "prompt_hash": prompt_hash,
         "system": system, "user_template": template,
-        "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
+        "render": RENDER, "max_body_chars": MAX_BODY_CHARS, "num_ctx": NUM_CTX, "concurrency": a.concurrency,
         "pairs": a.pairs, "extra_emails": a.extra_emails, "roster": a.roster, "fresh": a.fresh,
         "num_gpu": a.num_gpu, "num_batch": a.num_batch, "schema": a.schema or a.mode == "json_reason",
         "ollama_version": json.load(urllib.request.urlopen(f"{OLLAMA}/api/version"))["version"],

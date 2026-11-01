@@ -78,6 +78,7 @@ button { cursor: pointer; }
 .seg button span { color: var(--muted); font-variant-numeric: tabular-nums; }
 .seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .seg button[aria-pressed="true"] span { color: inherit; opacity: .85; }
+.seg button[data-sec="recheck"] { grid-column: 1 / -1; }
 .row-ctl { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
 .row-ctl select { border: 1px solid var(--rule); background: var(--sheet); border-radius: 6px; padding: 4px 6px; }
 .row-ctl label { display: inline-flex; gap: 5px; align-items: center; color: var(--muted); }
@@ -148,6 +149,8 @@ table.roster td.addr { font-family: var(--f-mono); font-size: 11.5px; }
 .hdrs dd { margin: 0; overflow-wrap: anywhere; }
 .hdrs .subject { font-weight: 600; }
 .body { margin: 0; padding: 14px 16px 18px; white-space: pre-wrap; overflow-wrap: anywhere; font: 14.5px/1.6 var(--f-ui); max-width: 86ch; }
+.body .cut { display: block; margin: 8px 0; padding: 3px 0; border-block: 1px dashed var(--nonresp); color: var(--nonresp); font: 600 12px var(--f-ui); letter-spacing: .04em; text-transform: uppercase; }
+.recheck { border-color: var(--nonresp); }
 mark { background: var(--mark); color: var(--mark-ink); border-radius: 2px; padding: 0 1px; }
 .nohl mark { background: transparent; color: inherit; padding: 0; }
 a { color: var(--accent); }
@@ -253,12 +256,12 @@ a { color: var(--accent); }
 
 <script>
 const DATA = /*__DATA__*/null;
-const SECTIONS = { disagree: ["Disagreements", "D"], spot: ["Spot check", "S"], synth: ["Synthetic", "Y"], all: ["All rows", ""] };
+const SECTIONS = { recheck: ["Recheck", "C"], disagree: ["Disagreements", "D"], spot: ["Spot check", "S"], synth: ["Synthetic", "Y"], all: ["All rows", ""] };
 const items = DATA.items;
 const byKey = {};
 const secN = {};
 items.forEach(it => { byKey[it.key] = it; secN[it.section] = (secN[it.section] || 0) + 1; it.num = secN[it.section]; });
-const isSynth = it => it.section === "synth";
+const isSynth = it => it.kind !== "real";
 const validCalls = it => isSynth(it) ? ["K", "F", "D"] : ["R", "N"];
 
 const LS = {
@@ -303,17 +306,18 @@ function hl(text, rid) {
 function visible() {
   return items.filter(it => (view.section === "all" || it.section === view.section)
     && (view.req === "all" || it.request_id === view.req)
-    && (!view.openOnly || !(calls[it.key] && calls[it.key].call) || it.key === view.cur));
+    && (!view.openOnly || !decided(it) || it.key === view.cur));
 }
-const decided = it => !!(calls[it.key] && calls[it.key].call);
+// a recheck row's earlier call doesn't count until it is made again on or after recheck_since
+const decided = it => { const c = calls[it.key]; return !!(c && c.call && (!it.recheck || (c.at || "") >= DATA.recheck_since)); };
 
 /* ---------- rendering ---------- */
 function renderTop() {
   const n = items.length, d = items.filter(decided).length;
   $("count").textContent = `${d} of ${n} decided`;
-  const segs = ["disagree", "spot", "synth"].map(s => {
+  const segs = ["recheck", "disagree", "spot", "synth"].map(s => {
     const all = items.filter(i => i.section === s);
-    return `<i style="width:${(all.filter(decided).length / n) * 100}%;background:var(--${s === "synth" ? "flip" : s === "spot" ? "accent" : "resp"})"></i>`;
+    return `<i style="width:${(all.filter(decided).length / n) * 100}%;background:var(--${s === "synth" ? "flip" : s === "spot" ? "accent" : s === "recheck" ? "nonresp" : "resp"})"></i>`;
   });
   $("bar").innerHTML = segs.join("");
 }
@@ -325,7 +329,7 @@ function renderSeg() {
 }
 function statusPill(it) {
   const c = calls[it.key] && calls[it.key].call;
-  return c ? `<span class="pill" data-v="${c}">${c}</span>` : `<span class="pill">·</span>`;
+  return c && decided(it) ? `<span class="pill" data-v="${c}">${c}</span>` : `<span class="pill">·</span>`;
 }
 function renderList() {
   const v = visible();
@@ -373,13 +377,33 @@ function emailPanel(e, rid, title, extra) {
     ["Subject", `<span class="subject">${hl(e.subject || "(no subject)", rid)}</span>`],
     ["From", hl(e.from, rid)], ["To", hl(e.to, rid)],
     e.cc ? ["Cc", hl(e.cc, rid)] : null,
+    e.bcc ? ["Bcc", hl(e.bcc, rid)] : null,
+    e.delivered_to ? ["Delivered to", hl(e.delivered_to, rid)] : null,
     ["Date", `<span class="mono">${esc(e.date || "")}</span> ${w ? `<span class="chip ${w[0]}">${w[1]}</span>` : ""}`],
     ["Attach.", att],
   ].filter(Boolean);
+  // mark where the scorer truncates the body, so a hook past the cap is visibly out of the models' reach
+  const body = e.body || "", cap = extra && extra.cut ? DATA.max_body_chars : 0;
+  const bodyHtml = cap && body.length > cap
+    ? hl(body.slice(0, cap), rid) + `<span class="cut">Models stop reading here, after ${cap.toLocaleString()} characters</span>` + hl(body.slice(cap), rid)
+    : hl(body, rid);
   return `<section class="panel ${view.hl ? "" : "nohl"}">
     <div class="hd"><span class="label">${title}</span>${e.url ? `<a href="${esc(e.url)}" target="_blank" rel="noopener" style="margin-left:auto;font-size:13px">Original on County portal ↗</a>` : ""}</div>
     <div class="bd"><dl class="hdrs">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></div>
-    <pre class="body">${hl(e.body, rid)}</pre>
+    <pre class="body">${bodyHtml}</pre>
+  </section>`;
+}
+function recheckPanel(it) {
+  const c = calls[it.key];
+  const label = v => ({ R: "responsive", N: "not responsive", K: "keep", F: "flip", D: "drop" }[v] || v);
+  const current = c && c.call
+    ? `<span class="pill" data-v="${c.call}">${c.call}</span><span>${decided(it) ? "Confirmed" : "Earlier call"}: ${label(c.call)}${c.at ? ` · ${esc(c.at.slice(0, 10))}` : ""}</span>`
+    : isSynth(it)
+      ? `<span class="pill" data-v="${it.label ? "R" : "N"}">${it.label ? "R" : "N"}</span><span>No call yet. The golden set uses the intended label.</span>`
+      : `<span class="pill" data-v="${it.prelabel}">${it.prelabel}</span><span>No call yet. The golden set uses the pre-label.</span>`;
+  return `<section class="panel prelabel recheck">
+    <div class="hd"><span class="label">What to recheck</span></div>
+    <div class="bd"><p>${esc(it.recheck)}</p><div class="verdict">${current}</div></div>
   </section>`;
 }
 function realContext(it) {
@@ -419,13 +443,15 @@ function renderMain() {
     ? `<div class="banner">Calls are being kept in this browser only, because the shared store isn't available in this view. Use <b>Copy calls</b> at the bottom of the queue to hand them to Claude.</div>`
     : mode === "readonly" ? `<div class="banner">This view can't save calls. Open the page as its owner to record decisions.</div>` : "";
   const sec = SECTIONS[it.section][0];
-  const why = isSynth(it) ? "Flagged by the verifier. Keep the intended label, flip it, or drop the email." : (it.why_listed || "Random spot check: pre-label and production origin agree.");
+  const why = it.recheck ? "Questioned after reading the models' reasoning. Confirm the call or change it."
+    : isSynth(it) ? "Flagged by the verifier. Keep the intended label, flip it, or drop the email." : (it.why_listed || "Random spot check: pre-label and production origin agree.");
   $("record").innerHTML = `${banner}
     <div class="crumb"><span class="where">${sec} ${it.num} of ${secN[it.section]} · ${it.request_id}</span>
       <h2>${esc(it.email.subject || "(no subject)")}</h2><span class="why">${esc(why)}</span></div>
+    ${it.recheck ? recheckPanel(it) : ""}
     ${scopePanel(it.request_id)}
     ${isSynth(it) ? synthContext(it) : realContext(it)}
-    ${emailPanel(it.email, it.request_id, isSynth(it) ? "Synthetic email" : "Email", { window: it.window })}
+    ${emailPanel(it.email, it.request_id, isSynth(it) ? "Synthetic email" : "Email", { window: it.window, cut: true })}
     ${isSynth(it) && it.source ? `<details class="panel"><summary><span class="label">Original email it was edited from</span></summary>${emailPanel(it.source, it.request_id, "Source email", {}).replace(/^<section class="panel ?/, '<section class="')}</details>` : ""}`;
   $("scroll").scrollTop = 0;
   const sp = $("scopePanel");
@@ -445,9 +471,10 @@ function renderDecide() {
   if (document.activeElement !== note) note.value = c.note || "";
   const v = visible(), i = v.findIndex(x => x.key === it.key);
   $("prev").disabled = i <= 0; $("next").disabled = i < 0 || i >= v.length - 1;
-  $("hint").innerHTML = isSynth(it)
+  $("hint").innerHTML = (isSynth(it)
     ? `<span>K keep · F flip · D drop · ← → move</span><span>Judge the edited email against the request as written.</span>`
-    : `<span>R responsive · N not responsive · ← → move</span><span>Responsiveness only. Privilege and exemptions don't matter here.</span>`;
+    : `<span>R responsive · N not responsive · ← → move</span><span>Responsiveness only. Privilege and exemptions don't matter here.</span>`)
+    + (it.recheck && c.call && !decided(it) ? `<span>The earlier call is highlighted. Press it again to confirm it.</span>` : "");
 }
 function renderAll() { renderTop(); renderSeg(); renderList(); renderMain(); }
 function refreshStatus() { renderTop(); renderSeg(); renderList(); renderDecide(); }
@@ -538,6 +565,10 @@ $("copyClose").addEventListener("click", () => { $("copybox").hidden = true; });
 /* ---------- boot ---------- */
 function start(hot) {
   if (hot && hot.view) Object.assign(view, hot.view);
+  if (LS.get("recheckSeen", "") !== DATA.recheck_since) {  // open on a new recheck batch once
+    Object.assign(view, { section: "recheck", openOnly: false, cur: null });
+    LS.set("recheckSeen", DATA.recheck_since); LS.set("view", view);
+  }
   $("reqSel").value = view.req; $("openOnly").checked = view.openOnly; $("autoAdv").checked = view.auto; $("hlTog").checked = view.hl;
   calls = LS.get("calls", {});
   ensureCur();
