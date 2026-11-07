@@ -12,11 +12,14 @@ The main tables use one prompt version (run.json "prompt"; runs before 2026-10-3
 the latest with a complete run, or --prompt N.
 
 Run identity comes from run.json (model, mode, roster, fresh, num_gpu, num_batch); a tag containing
-"_cpu" is a laptop run. With the default batch size, the ROCm GPU path for the qwen3.5 4b/9b models
-(qwen35 architecture) carries recurrent state across 2,048-token prefill batches and between calls,
-so those runs are unreliable. Each (model, mode, roster) appears once in the main tables. For the
-4b/9b, in this order: a GPU run with num_batch >= 8192 (the clean GPU setting); a CPU run on the
-Strix Halo (num_gpu 0); a default-batch GPU run. For qwen3.8:27b, which is unaffected, the
+"_cpu" is a laptop run, and backend "typesafe-api" is Jev through its API (scripts/score_systemone.py, which
+also scores local System One models such as d3; mode "noul"). On Ollama 0.32.14, with the default batch
+size, the ROCm GPU path for the qwen3.5 4b/9b models (qwen35 architecture) carries recurrent state across
+2,048-token prefill batches and between calls, so those runs are unreliable; on 0.40.13 a recheck
+(2026-11-04) found the default batch clean. Each (model, mode, roster) appears once in the main tables.
+For the 4b/9b, in this order: a default-batch GPU run on Ollama >= 0.40.13 (keeps the prefix cache); a
+GPU run with num_batch >= 8192 (the clean GPU setting on older builds); a CPU run on the Strix Halo
+(num_gpu 0); a default-batch GPU run on an older build. For qwen3.8:27b, which is unaffected, the
 default-batch GPU run comes first (it keeps Ollama's prefix cache, so its latency is the realistic
 one). Within each, the earlier Ollama version wins, then a cached run (model stays loaded) beats a
 --fresh one (unload before every call).
@@ -38,10 +41,13 @@ from compare import ranks
 
 KINDS = ["real_positive", "close_call_positive", "privileged_positive", "exempt_other_positive",
          "hard_negative_flipped", "real_negative", "hard_negative"]
-MODELS = ["qwen3.5:4b", "qwen3.5:9b", "qwen3.8:27b"]
-MODES = ["logprob", "json", "json_reason"]
+MODELS = ["qwen3.5:4b", "qwen3.5:9b", "qwen3.8:27b", "d3-ctx8k:4b", "d3-ctx8k:9b", "d3-ctx8k:27b", "jev-1.14.0"]
+LABEL = {"qwen3.5:4b": "4b", "qwen3.5:9b": "9b", "qwen3.8:27b": "27b",
+         "d3-ctx8k:4b": "d3-4b", "d3-ctx8k:9b": "d3-9b", "d3-ctx8k:27b": "d3-27b", "jev-1.14.0": "Jev"}
+MODES = ["logprob", "json", "json_reason", "noul"]
 AFFECTED = {"qwen3.5:4b", "qwen3.5:9b"}  # corrupted at the default batch size on ROCm (see docstring)
-ABBR = {"logprob": "lp", "json": "json", "json_reason": "jsonR"}
+FIXED_OLLAMA = (0, 40, 13)  # default batch rechecked clean for AFFECTED on this version (2026-11-04)
+ABBR = {"logprob": "lp", "json": "json", "json_reason": "jsonR", "noul": "noul"}
 
 
 def load_runs():
@@ -59,7 +65,8 @@ def load_runs():
                      "ollama": cfg.get("ollama_version") or "?",
                      "fresh": bool(cfg.get("fresh")), "cpu": cfg.get("num_gpu") == 0,
                      "bigbatch": (cfg.get("num_batch") or 0) >= 8192,
-                     "machine": "laptop" if "_cpu" in d.name else "strix", "all": rows,
+                     "machine": "laptop" if "_cpu" in d.name else "api" if cfg.get("backend") == "typesafe-api" else "strix",
+                     "all": rows,
                      "complete": len(rows) >= (n_roster if cfg.get("roster") else len(pairs)),
                      "rows": [r for r in rows if "error" not in r and r.get("score") is not None]})
     order = lambda r: (r["machine"] != "strix", r["roster"], MODES.index(r["mode"]),
@@ -87,23 +94,29 @@ def version(v):
     return tuple(int(x) for x in v.split(".")) if v[0].isdigit() else (0,)
 
 
+def fixed_default(run):  # an affected model at the default batch on an Ollama build where the fault is gone
+    return not run["bigbatch"] and not run["cpu"] and version(run["ollama"]) >= FIXED_OLLAMA
+
+
 def rank(run):  # the earlier Ollama version wins before cache policy, so a later check run doesn't replace a reference run
-    if run["model"] in AFFECTED:  # batch 8192 > CPU > default batch
-        return (not run["bigbatch"], not run["cpu"], version(run["ollama"]), run["fresh"])
+    if run["model"] in AFFECTED:  # default batch on a fixed Ollama > batch 8192 > CPU > default batch
+        return (not fixed_default(run), not run["bigbatch"], not run["cpu"], version(run["ollama"]), run["fresh"])
     return (run["cpu"], run["bigbatch"], version(run["ollama"]), run["fresh"])  # default batch > batch 8192 > CPU
 
 
 def clean(run):
-    return run["bigbatch"] or run["cpu"] or run["model"] not in AFFECTED
+    return run["bigbatch"] or run["cpu"] or run["model"] not in AFFECTED or fixed_default(run)
 
 
 def setting(run):
+    if run["machine"] == "api":
+        return "TypeSafe API"
     return (("CPU" if run["cpu"] else "batch 8192" if run["bigbatch"] else "default batch") + (", fresh" if run["fresh"] else "")
             + f", Ollama {run['ollama']}")
 
 
 def name(run):
-    s = f"{run['model'].split(':')[1]} {ABBR[run['mode']]}"
+    s = f"{LABEL.get(run['model'], run['model'])} {ABBR[run['mode']]}"
     return (s + (" +roster" if run["roster"] else "") + (" laptop" if run["machine"] == "laptop" else "")
             + (" CPU" if run["cpu"] else "" if clean(run) else " (fresh)" if run["fresh"] else " (cached)"))
 
@@ -335,16 +348,21 @@ def main():
     # ---- 6. latency ----
     print("## 6. Latency (median per call; single-stream)\n")
     out = []
+    print("Prefill, decode and total are Ollama's server-side timings (load excluded). System One endpoints "
+          "(noul: local d3, Jev's API) report none, so only wall time is shown; wall = request to response as the "
+          "scorer saw it, which for Jev includes the network round trip.\n")
     for r in runs:
-        xs = r["rows"]; med = lambda f: statistics.median(x[f] for x in xs if x.get(f) is not None)
-        tot = sorted(x["total_ms"] for x in xs)
+        xs = r["rows"]
+        med = lambda f: f"{statistics.median(v):.0f}" if (v := [x[f] for x in xs if x.get(f) is not None]) else "—"
+        p90 = lambda f: f"{v[int(.9 * len(v))]:.0f}" if (v := sorted(x[f] for x in xs if x.get(f) is not None)) else "—"
         gen = [x["gen_tokens"] for x in xs if x.get("gen_tokens")]
         dec = sum(x["decode_ms"] for x in xs if x.get("gen_tokens"))
-        out.append([name(r), r["machine"] + ", " + setting(r), f"{med('prompt_tokens'):.0f}", f"{med('prefill_ms'):.0f}",
-                    f"{med('decode_ms'):.0f}", f"{statistics.median(gen):.0f}" if gen else "1",
-                    f"{sum(gen) / dec * 1000:.1f}" if gen else "—", f"{med('total_ms'):.0f}",
-                    f"{tot[int(.9 * len(tot))]:.0f}"])
-    table(["run", "machine, setting", "prompt tok", "prefill ms", "decode ms", "gen tok", "decode tok/s", "total ms", "p90 total"], out)
+        out.append([name(r), r["machine"] + ", " + setting(r), med("prompt_tokens"), med("prefill_ms"),
+                    med("decode_ms"), f"{statistics.median(gen):.0f}" if gen else "1" if r["mode"] == "logprob" else "—",
+                    f"{sum(gen) / dec * 1000:.1f}" if gen else "—", med("total_ms"), p90("total_ms"),
+                    med("wall_ms"), p90("wall_ms")])
+    table(["run", "machine, setting", "prompt tok", "prefill ms", "decode ms", "gen tok", "decode tok/s", "total ms",
+           "p90 total", "wall ms", "p90 wall"], out)
 
     # ---- 7. roster ablation ----
     print("## 7. Roster ablation (25-3152 only)\n")
@@ -408,7 +426,7 @@ def main():
             sc, sf = stats([cs[p] for p in shared]), stats([F[p] for p in shared])
             t = thr98([F[p] for p in shared])
             cross = sum((cs[p]["score"] >= t) != (F[p]["score"] >= t) for p in shared)
-            out.append([f"{f['model'].split(':')[1]} {ABBR[f['mode']]}{' +roster' if f['roster'] else ''}",
+            out.append([f"{LABEL.get(f['model'], f['model'])} {ABBR[f['mode']]}{' +roster' if f['roster'] else ''}",
                         f"{setting(c)} vs {setting(f)}", len(shared), sum(x < 1e-6 for x in d.values()),
                         f"{sc['auroc']:.3f} → {sf['auroc']:.3f}", f"{sc['e98']:.0%} → {sf['e98']:.0%}",
                         m(short), m(long), sum(x > 0.1 for x in d.values()), cross])

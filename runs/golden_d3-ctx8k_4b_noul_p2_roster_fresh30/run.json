@@ -1,0 +1,38 @@
+{
+ "model": "d3-ctx8k:4b",
+ "backend": "ollama",
+ "endpoint": "http://localhost:11434/v1/systemone",
+ "mode": "noul",
+ "prompt": 2,
+ "prompt_hash": "7007d3770b272b10",
+ "instructions": "`cpra_request` is a California Public Records Act (CPRA) request to a California county, and `email` is one email from the county's email system. Is `email` responsive to `cpra_request`, meaning it is a record the request is asking for? If the request covers communications sent or received by named people or groups, an email to or from one of them is responsive whatever its subject, unless it is purely personal and has nothing to do with public business. Do not consider whether the email might be exempt from disclosure; that is a separate question.",
+ "state_fields": [
+  "cpra_request",
+  "email"
+ ],
+ "render": 2,
+ "max_body_chars": 8000,
+ "concurrency": 1,
+ "pairs": "data/golden/pairs_25-3152.jsonl",
+ "extra_emails": "data/golden/emails.jsonl",
+ "roster": "data/golden/roster_context.txt",
+ "fresh": true,
+ "digest": "2e7385a1e13642f25f713ea1287f7fbe45d8f09ddcb55ab28778d0a8c34aecf9",
+ "details": {
+  "parent_model": "d3:4b",
+  "format": "gguf",
+  "family": "qwen35",
+  "families": [
+   "qwen35"
+  ],
+  "parameter_size": "4.8B",
+  "quantization_level": "Q8_0",
+  "context_length": 262144,
+  "embedding_length": 2560,
+  "runner": "llamacpp"
+ },
+ "num_ctx": 8192,
+ "num_batch": 8192,
+ "num_gpu": null,
+ "ollama_version": "0.40.13"
+}
