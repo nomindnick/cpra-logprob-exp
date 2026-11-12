@@ -1,5 +1,5 @@
 #!/bin/bash
-# Default-batch recheck on Ollama 0.40.13 (docs/findings-golden.md §7, §12 item 7): qwen3.5 4b/9b logprob at
+# Default-batch recheck on Ollama 0.40.13 (docs/findings-golden.md §7): qwen3.5 4b/9b logprob at
 # Ollama's default batch size, cached and --fresh, each with the 25-3152 roster ablation. Compare against the
 # batch-8192 prompt-2 runs (golden_*_logprob_p2*): if the ROCm fault is fixed upstream, the cached runs match
 # within noise with no excess above 2,048 prompt tokens, and the 4b/9b can go back to the default batch (prefix cache).
