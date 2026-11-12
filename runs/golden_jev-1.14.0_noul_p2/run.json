@@ -15,5 +15,6 @@
  "concurrency": 1,
  "pairs": "data/golden/pairs.jsonl",
  "extra_emails": "data/golden/emails.jsonl",
- "roster": null
+ "roster": null,
+ "fresh": false
 }

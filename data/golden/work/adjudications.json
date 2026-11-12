@@ -396,8 +396,8 @@
   "note": ""
  },
  "synth:24-409:03:01": {
-  "call": "K",
-  "note": ""
+  "call": "F",
+  "note": "Owner call 2026-11-08: responsive (flip). The literal request controls: item 4 covers anything sent to or from anyone at Geosyntec, whatever the subject. Consistent with the 03:04/03:07/06:01/06:03 flips; the requester cast a wide net and the agency has to use it."
  },
  "synth:24-409:03:04": {
   "call": "F",
@@ -416,8 +416,8 @@
   "note": ""
  },
  "synth:24-409:03:09": {
-  "call": "K",
-  "note": ""
+  "call": "F",
+  "note": "Owner call 2026-11-08: responsive (flip). The literal request controls: item 4 covers anything sent to or from anyone at Geosyntec, whatever the subject. Consistent with the 03:04/03:07/06:01/06:03 flips; the requester cast a wide net and the agency has to use it."
  },
  "synth:24-409:06:01": {
   "call": "F",
@@ -432,8 +432,8 @@
   "note": ""
  },
  "synth:24-409:07:09": {
-  "call": "D",
-  "note": ""
+  "call": "K",
+  "note": "Owner call 2026-11-11: reinstated as a not-responsive hard negative (was D on 2026-10-31 because a literal keyword hit seemed arguable). RDF here is refuse-derived fuel; the request means the Regional Decarbonization Framework. Same reasoning as 07:01."
  },
  "synth:25-3152:12:01": {
   "call": "K",
@@ -496,12 +496,12 @@
   "note": ""
  },
  "synth:25-3152:15:01": {
-  "call": "K",
-  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
+  "call": "F",
+  "note": "Owner call 2026-11-08: responsive (flip). Copying the ACPG Chair brings it in even if it otherwise would have been out. Reverses the 2026-10-31 purely-personal extension from 15:05/15:09."
  },
  "synth:25-3152:15:02": {
-  "call": "K",
-  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
+  "call": "F",
+  "note": "Owner call 2026-11-08: in (responsive, flip). Reverses the 2026-10-31 purely-personal extension from 15:05/15:09."
  },
  "synth:25-3152:15:03": {
   "call": "K",
@@ -516,8 +516,8 @@
   "note": ""
  },
  "synth:25-3152:15:06": {
-  "call": "K",
-  "note": "Purely personal, not a public record (San Jose); applied from the 15:05/15:09 recheck calls, 2026-10-31."
+  "call": "F",
+  "note": "Owner call 2026-11-08: in (responsive, flip). Reverses the 2026-10-31 purely-personal extension from 15:05/15:09."
  },
  "synth:25-3152:15:07": {
   "call": "K",
@@ -530,5 +530,17 @@
  "synth:25-3152:15:09": {
   "call": "K",
   "note": ""
+ },
+ "synth:24-409:07:01": {
+  "call": "K",
+  "note": "Owner call 2026-11-11: not responsive (keep). RDF here is refuse-derived fuel; the request means the Regional Decarbonization Framework. The CPRA allows reasonable interpretation of the requester's intent and imposes a duty to help clarify; treating 'RDF' as a bare keyword and producing documents the requester didn't want, without clarifying first, is borderline bad faith. Unlike the named-correspondent items, the requester did not cast this net."
+ },
+ "synth:24-409:07:02": {
+  "call": "K",
+  "note": "Owner call 2026-11-11: not responsive (keep). GPS here means satellite positioning, not UCSD Global Policy & Strategy. Same reasoning as 07:01: read the request by the requester's evident intent, not as a bare keyword search."
+ },
+ "synth:24-409:07:03": {
+  "call": "K",
+  "note": "Owner call 2026-11-11: not responsive (keep). GPS here means outfall coordinates, not UCSD Global Policy & Strategy. Same reasoning as 07:01: read the request by the requester's evident intent, not as a bare keyword search."
  }
 }
