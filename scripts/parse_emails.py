@@ -7,8 +7,8 @@ Reads  data/manifests/sandiego/*.request.json, *.documents.jsonl
 Writes data/emails/sandiego.requests.jsonl   (request_id, request_text as plain text)
        data/emails/sandiego.emails.jsonl     (one row per email; full headers + body text)
 
-The committed JSONL is the dataset of record; raw files are re-fetchable from the
-manifests. Attachments are recorded by name only (SPEC §7: phase 1 excludes them).
+The JSONL is the dataset of record. It holds email text, so it is git-ignored; raw files are
+re-fetchable from the manifests. Attachments are recorded by name only (SPEC §7: phase 1 excludes them).
 Blind recipients: "bcc" is the Bcc header (sent items); "delivered_to" is the receiving
 mailbox when it isn't already in To/Cc/Bcc (a bcc'd copy in someone's inbox).
 """

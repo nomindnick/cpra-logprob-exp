@@ -16,3 +16,23 @@ __pycache__/
 .vscode/
 .idea/
 .DS_Store
+
+# email text is kept out of the repository (see README, "Data"); these stay on disk only
+data/emails/sandiego.emails.jsonl
+data/golden/emails.jsonl
+data/golden/work/synthetic.jsonl
+data/golden/work/adjudication_items.json
+data/golden/work/gen/
+data/golden/work/prelabel_*.json
+docs/golden-adjudication.md
+docs/golden-adjudication.html
+docs/spotcheck-qwen3.5-4b.md
+explainer/data.js
+
+# explainer video: build outputs, rendered media, generated audio, downloaded fonts
+explainer/video/build/
+explainer/video/v2/build/
+explainer/video/out/
+explainer/video/audio/
+explainer/video/v2/audio/
+explainer/video/fonts/*.woff2

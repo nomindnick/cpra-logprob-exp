@@ -123,7 +123,7 @@ GPU-vs-CPU differences on the golden set don't grow with prompt length.
 
 ## 7. Next
 
-1. Human adjudication (`docs/spotcheck-qwen3.5-4b.md`) → corrected-label recall.
+1. Human adjudication (`docs/spotcheck-qwen3.5-4b.md`, local only) → corrected-label recall.
 2. Prompt revision for correspondent-scoped requests; ablation with a member list for 25-3152.
 3. Backend comparison: qwen3.5:9b through llama-server and vLLM on the latency subset.
 4. CPU laptop: qwen3.5:4b and gemma4:e4b on the latency subset (H6).

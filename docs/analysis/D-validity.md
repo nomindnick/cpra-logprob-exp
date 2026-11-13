@@ -304,7 +304,7 @@ close models depends on which negatives are in the set.
 
 - **Real rows** (`scripts/build_golden.py`; SPEC §7.3, §14). Opus pre-labeled 210 real emails per request: 120
   produced and 90 from other productions (D2-0, `data/golden/work/candidate_plan.json`). The human adjudicated the
-  disagreements, a random 20% spot check, and later rechecks (`docs/golden-adjudication.md`). The build keeps 75
+  disagreements, a random 20% spot check, and later rechecks (`docs/golden-adjudication.md`, local only). The build keeps 75
   positives and 60 negatives per request, preferring adjudicated rows, then high-confidence pre-labels, then a
   seeded random order. Positives come from the request's own production, negatives from other productions. The
   build would also admit an other-production email the human called responsive, but none is in the set: all 150
@@ -313,7 +313,7 @@ close models depends on which negatives are in the set.
 - **Synthetic rows** (SPEC §14). Per the spec, these are *edits of real emails*: real sender, signature and thread
   shape, changed substance, written by Opus subagents (not a Qwen, to avoid grading the candidates on their own
   text). Each carries its recipe and source email id (`data/golden/work/gen/job_*.json`,
-  `data/golden/work/synthetic.jsonl`).
+  `data/golden/work/synthetic.jsonl`, both local only).
 - **Verifier.** A verifier pass recorded label-ok, recipe-ok and style-tell verdicts. The repo doesn't record
   which model the verifier was.
 - **Flags.** A flagged email stays in the set only if the human adjudicated it (K keep, F flip, D drop).

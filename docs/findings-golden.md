@@ -19,7 +19,7 @@ document are in git history.
 the human checked:
 
 - every disagreement with production membership, plus a random spot check (81 of 81 confirmed);
-- every synthetic email the verifier flagged (`docs/golden-adjudication.md`);
+- every synthetic email the verifier flagged (`docs/golden-adjudication.md`, local only);
 - the labels questioned later by readers of the model reasoning and by the misses analysis (§9).
 
 | | 24-409 (topical) | 25-3152 (correspondent-scoped) |

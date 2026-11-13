@@ -333,7 +333,7 @@ the local-only constraint before accuracy comes into it.
 - **These checks aren't independent of the generator.** Opus wrote the synthetic emails and the pre-labels. The
   realism codes (D) and the re-reads of the 68 consensus items (C) were made by AI analysts of the same model
   family. The human spot check was done on an adjudication page that showed the Opus pre-label and its rationale
-  (`docs/golden-adjudication.md`). So 0/81 measures agreement with a visible suggestion, and 3.6% is an upper
+  (`docs/golden-adjudication.md`, local only). So 0/81 measures agreement with a visible suggestion, and 3.6% is an upper
   bound on disagreement with the pre-label, not on the label error rate. A blind second human adjudication of a
   sample would fix this [D4 rows 3 and 5].
 

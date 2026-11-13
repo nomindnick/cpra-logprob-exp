@@ -75,7 +75,7 @@ labels and the prompt, not the model.
 | 25-4697 | Harmony Grove Village South | 207 | 0.995 | 0.56 | 2,255 | 52% |
 | 25-5982 | CAIR / Gaza custodian search | 129 | 1.000 | 0.80 | 2,333 | **6%** |
 
-## What the spot check found (`docs/spotcheck-qwen3.5-4b.md`)
+## What the spot check found (`docs/spotcheck-qwen3.5-4b.md`, local only)
 
 The 50 lowest-scoring positives and 50 highest-scoring negatives, read by hand.
 Four things, none of which is simply "the model missed":
