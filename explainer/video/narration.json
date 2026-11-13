@@ -1,0 +1,13 @@
+{
+ "voice_id": "nPczCjzI2devNBz1zQrb",
+ "model_id": "eleven_multilingual_v2",
+ "segments": [
+  {"id": "s1", "text": "One public records request can sweep in ten thousand emails. Someone has to decide which ones the request is actually asking for."},
+  {"id": "s2", "text": "I tested a shortcut. Give each email to a small AI model on one desktop computer, and ask a single question: is this responsive? Yes or no."},
+  {"id": "s3", "text": "Here's the trick. Before a model writes its first word, it has already put odds on every word it might say. So don't let it write. Read the odds of yes against no, and stop. That's the score."},
+  {"id": "s4", "text": "The obvious way is to have the model write out a verdict, with reasons and a confidence level. In my test, that took 2.6 to 6.2 times as long per email."},
+  {"id": "s5", "text": "And it sorted the pile worse. The written confidence only ever landed on a few round numbers. The odds spread the emails along a line, likeliest first."},
+  {"id": "s6", "text": "Two cautions. A good ranking is not a safe cutoff. Where to draw the line is still a lawyer's call. And this was one family of models, two requests, and one lawyer settling the close calls: me."},
+  {"id": "s7", "text": "So, a promising pre-screen, not a replacement for review. But for sorting the pile, one word is enough."}
+ ]
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>One word is enough (second cut)</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+:root{--paper:#0b1019;--surface:#141b28;--sunk:#0f1622;--ink:#e8edf4;--ink2:#b1bccd;--ink3:#8592a8;--rule:#263146;--rule2:#3a4760;
+ --pos:#3987e5;--neg:#d95926;--gold:#ffce40;--stamp:#f08a80;--f1:#bd8c12;--f2:#17a58f;--f3:#a070f0;
+ --display:"Besley",Georgia,serif;--body:"Public Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#05080d;overflow:hidden}
+#stage{position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--paper);color:var(--ink);font:400 26px/1.4 var(--body);-webkit-font-smoothing:antialiased;
+ background-image:radial-gradient(1300px 800px at 50% 30%,#131c2c 0%,#0b1019 72%)}
+#cv{position:absolute;left:0;top:0}
+#wl,#hud{position:absolute;left:0;top:0;width:1080px;height:1350px}
+#wl{transform-origin:0 0}
+.act{position:absolute;inset:0;display:none}
+.abs{position:absolute;white-space:nowrap}
+#bar{position:absolute;left:0;top:0;height:5px;background:var(--gold);width:0}
+#hdr{position:absolute;left:60px;right:60px;top:54px;display:flex;justify-content:space-between;font:500 22px/1 var(--mono);letter-spacing:.13em;color:var(--ink3);text-transform:uppercase}
+#kick{color:var(--gold)}
+#hdr-rule{position:absolute;left:60px;right:60px;top:98px;height:1px;background:var(--rule)}
+#capbg{position:absolute;left:0;right:0;top:1100px;height:250px;background:linear-gradient(#0b101900,#0b1019 22%)}
+#cap{position:absolute;left:60px;right:60px;top:1132px;height:176px;display:flex;align-items:center;justify-content:center;text-align:center;font:600 46px/1.25 var(--body);letter-spacing:-.005em;text-wrap:balance}
+#cap span{color:#5f6d85}
+#cap span.on{color:var(--ink)}
+.h1{font:700 68px/1.08 var(--display);letter-spacing:-.012em}
+.h2{font:400 32px/1.3 var(--body);color:var(--ink2)}
+.big{font:700 132px/1 var(--display);letter-spacing:-.02em}
+.mid{font:700 84px/1 var(--display);letter-spacing:-.015em}
+.lab{font:500 22px/1.25 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.lab.g{color:var(--gold)}
+.note{font:500 23px/1.35 var(--mono);color:var(--ink3);letter-spacing:.01em}
+.tick{font:500 20px/1 var(--mono);color:var(--ink3)}
+.t{font:400 27px/1.3 var(--body);color:var(--ink2)}
+.t b,.h2 b{color:var(--ink);font-weight:700}
+.sw{display:inline-block;width:18px;height:18px;border-radius:50%;margin-right:10px;vertical-align:-1px}
+.pill{display:inline-block;font:500 19px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);border:1px solid var(--rule2);border-radius:99px;padding:8px 13px}
+.chip{display:inline-block;font:600 25px/1 var(--body);color:var(--ink2);border:1.5px solid var(--rule2);border-radius:14px;padding:13px 18px;background:#0f162299}
+.card{position:absolute;background:var(--surface);border:1px solid var(--rule);border-radius:20px;box-shadow:0 30px 80px #0009}
+.mono{font-family:var(--mono)} .disp{font-family:var(--display)}
+#scrub{position:fixed;left:0;right:0;bottom:0;padding:8px;background:#000c;color:#fff;font:14px monospace;display:none;gap:10px;align-items:center}
+</style></head>
+<body>
+<div id="stage">
+  <canvas id="cv" width="1080" height="1350"></canvas>
+  <div id="wl"></div>
+  <div id="capbg"></div>
+  <div id="hud"></div>
+  <div id="hdr"><span>Public records × local AI</span><span id="kick"></span></div>
+  <div id="hdr-rule"></div>
+  <div id="cap"></div>
+  <div id="bar"></div>
+</div>
+<div id="scrub"><button id="pp">play</button><input id="rng" type="range" min="0" max="1" step="0.001" value="0" style="flex:1"><span id="tt"></span></div>
+<script src="film_data.js"></script>
+<script src="timeline.js"></script>
+<script src="core.js"></script>
+<script src="world.js"></script>
+<script src="layouts.js"></script>
+<script src="furn.js"></script>
+<script src="s1.js"></script>
+<script src="s2.js"></script>
+<script src="s3.js"></script>
+<script src="s4.js"></script>
+<script src="s5.js"></script>
+<script src="s6.js"></script>
+<script src="s7.js"></script>
+<script src="s8.js"></script>
+<script>F.boot();</script>
+</body></html>

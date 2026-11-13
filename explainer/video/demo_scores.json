@@ -1,0 +1,238 @@
+{
+ "model": "qwen3.8:27b",
+ "request": "All emails sent or received by county staff between January 1, 2024 and June 30, 2024 concerning the Mill Creek Bridge repair project, including contractor bids, the engineering assessment and the construction schedule.",
+ "system": "You are a public records analyst for a California county. You will be shown a California Public Records Act (CPRA) request and one email from the county's email system. Decide whether the email is responsive to the request, meaning it is a record the request is asking for. If the request covers communications sent or received by named people or groups, an email to or from one of them is responsive whatever its subject, unless it is purely personal and has nothing to do with public business. Do not consider whether the email might be exempt from disclosure; that is a separate question. Answer with a single word: yes or no.",
+ "emails": {
+  "yes": {
+   "email": {
+    "from": "Dana Whitfield <dana.whitfield@aldercounty.example>",
+    "to": "Marcus Lee <marcus.lee@aldercounty.example>",
+    "date": "2024-03-14",
+    "subject": "RE: Mill Creek Bridge - revised bid tabulation",
+    "attachments": [
+     "MillCreek_BidTab_rev2.xlsx"
+    ],
+    "body": "Marcus,\n\nThe revised bid tab for the Mill Creek Bridge repair is attached. After Addendum 2 the low bid is $1.84M, about 6% under the engineer's estimate.\n\nCan you confirm the estimate before the board packet goes out Thursday?\n\nThanks,\nDana\n\nDana Whitfield\nSenior Civil Engineer, Public Works"
+   },
+   "rendered": "From: Dana Whitfield <dana.whitfield@aldercounty.example>\nTo: Marcus Lee <marcus.lee@aldercounty.example>\nDate: 2024-03-14\nSubject: RE: Mill Creek Bridge - revised bid tabulation\nAttachments: MillCreek_BidTab_rev2.xlsx\n\nMarcus,\n\nThe revised bid tab for the Mill Creek Bridge repair is attached. After Addendum 2 the low bid is $1.84M, about 6% under the engineer's estimate.\n\nCan you confirm the estimate before the board packet goes out Thursday?\n\nThanks,\nDana\n\nDana Whitfield\nSenior Civil Engineer, Public Works",
+   "lp": {
+    "score": 0.9999260457801011,
+    "p_yes": 0.9967195836873503,
+    "p_no": 7.371707095800816e-05,
+    "residual": 0.0032066992416917395,
+    "first_token": "yes",
+    "top3": [
+     [
+      "yes",
+      0.97654
+     ],
+     [
+      "Yes",
+      0.01766
+     ],
+     [
+      "The",
+      0.00257
+     ]
+    ],
+    "prompt_tokens": 361
+   },
+   "lp_total_ms": [
+    1032,
+    142,
+    141
+   ],
+   "lp_wall_ms": [
+    1035,
+    144,
+    144
+   ],
+   "json": {
+    "score": 1.0,
+    "verdict": true,
+    "confidence": 1.0,
+    "raw": "{\n\"responsive\": true,\n\"confidence\": 1.0,\n\"reasoning\": \"The email is dated March 14, 2024, which falls within the requested timeframe of January 1, 2024, to June 30, 2024. It explicitly concerns the Mill Creek Bridge repair project and includes a revised bid tabulation, directly matching the request for contractor bids and related communications.\"\n}",
+    "gen_tokens": 97
+   },
+   "json_total_ms": [
+    4004,
+    3028
+   ],
+   "json_wall_ms": [
+    4007,
+    3030
+   ]
+  },
+  "no": {
+   "email": {
+    "from": "Facilities Desk <facilities@aldercounty.example>",
+    "to": "All Staff <allstaff@aldercounty.example>",
+    "date": "2024-03-14",
+    "subject": "North parking lot closed Saturday for restriping",
+    "body": "The north lot will be closed this Saturday for restriping. Please move your vehicle by Friday at 6 pm. Cars left in the lot will be towed to the south structure.\n\nFacilities Desk"
+   },
+   "rendered": "From: Facilities Desk <facilities@aldercounty.example>\nTo: All Staff <allstaff@aldercounty.example>\nDate: 2024-03-14\nSubject: North parking lot closed Saturday for restriping\n\nThe north lot will be closed this Saturday for restriping. Please move your vehicle by Friday at 6 pm. Cars left in the lot will be towed to the south structure.\n\nFacilities Desk",
+   "lp": {
+    "score": 0.00042340850105437465,
+    "p_yes": 0.0004192609332403104,
+    "p_no": 0.9897850741149792,
+    "residual": 0.009795664951780525,
+    "first_token": "no",
+    "top3": [
+     [
+      "no",
+      0.97031
+     ],
+     [
+      "No",
+      0.01623
+     ],
+     [
+      "The",
+      0.0079
+     ]
+    ],
+    "prompt_tokens": 311
+   },
+   "lp_total_ms": [
+    1024,
+    142,
+    140
+   ],
+   "lp_wall_ms": [
+    1027,
+    144,
+    143
+   ],
+   "json": {
+    "score": 0.0,
+    "verdict": false,
+    "confidence": 1.0,
+    "raw": "{\"responsive\": false, \"confidence\": 1.0, \"reasoning\": \"The email concerns the closure of a parking lot for restriping, which is unrelated to the Mill Creek Bridge repair project, contractor bids, engineering assessments, or construction schedules. Therefore, it does not fall within the specific subject matter requested.\"}",
+    "gen_tokens": 68
+   },
+   "json_total_ms": [
+    3362,
+    2544
+   ],
+   "json_wall_ms": [
+    3365,
+    2549
+   ]
+  },
+  "near": {
+   "email": {
+    "from": "Priya Raman <priya.raman@aldercounty.example>",
+    "to": "Parks Front Desk <parksdesk@aldercounty.example>",
+    "date": "2024-04-02",
+    "subject": "Mill Creek Park picnic shelter reservations",
+    "body": "Reservations for the Mill Creek Park picnic shelters open April 15. If callers ask, the footbridge by shelter 3 is open and no repairs are planned there this season.\n\nPriya Raman\nRecreation Coordinator, Parks"
+   },
+   "rendered": "From: Priya Raman <priya.raman@aldercounty.example>\nTo: Parks Front Desk <parksdesk@aldercounty.example>\nDate: 2024-04-02\nSubject: Mill Creek Park picnic shelter reservations\n\nReservations for the Mill Creek Park picnic shelters open April 15. If callers ask, the footbridge by shelter 3 is open and no repairs are planned there this season.\n\nPriya Raman\nRecreation Coordinator, Parks",
+   "lp": {
+    "score": 0.006999929901003392,
+    "p_yes": 0.006944860360190957,
+    "p_no": 0.9851879835980691,
+    "residual": 0.007867156041739931,
+    "first_token": "no",
+    "top3": [
+     [
+      "no",
+      0.9749
+     ],
+     [
+      "No",
+      0.00836
+     ],
+     [
+      "The",
+      0.00678
+     ]
+    ],
+    "prompt_tokens": 320
+   },
+   "lp_total_ms": [
+    1028,
+    141,
+    142
+   ],
+   "lp_wall_ms": [
+    1033,
+    143,
+    144
+   ],
+   "json": {
+    "score": 0.050000000000000044,
+    "verdict": false,
+    "confidence": 0.95,
+    "raw": "{\n\"responsive\": false,\n\"confidence\": 0.95,\n\"reasoning\": \"The request specifically seeks records concerning the 'Mill Creek Bridge repair project,' including bids, assessments, and schedules. This email concerns picnic shelter reservations and explicitly states that no repairs are planned for the footbridge, meaning it does not contain information about the specific bridge repair project requested.\"\n}",
+    "gen_tokens": 81
+   },
+   "json_total_ms": [
+    4390,
+    3309
+   ],
+   "json_wall_ms": [
+    4392,
+    3312
+   ]
+  },
+  "date": {
+   "email": {
+    "from": "Dana Whitfield <dana.whitfield@aldercounty.example>",
+    "to": "Marcus Lee <marcus.lee@aldercounty.example>",
+    "date": "2023-09-08",
+    "subject": "Mill Creek Bridge - inspection photos",
+    "body": "Marcus,\n\nPhotos from this morning's Mill Creek Bridge inspection are on the shared drive. The east abutment spalling is worse than last year.\n\nDana"
+   },
+   "rendered": "From: Dana Whitfield <dana.whitfield@aldercounty.example>\nTo: Marcus Lee <marcus.lee@aldercounty.example>\nDate: 2023-09-08\nSubject: Mill Creek Bridge - inspection photos\n\nMarcus,\n\nPhotos from this morning's Mill Creek Bridge inspection are on the shared drive. The east abutment spalling is worse than last year.\n\nDana",
+   "lp": {
+    "score": 0.0015368363384648336,
+    "p_yes": 0.0015315410972599475,
+    "p_no": 0.995022912313065,
+    "residual": 0.003445546589674997,
+    "first_token": "no",
+    "top3": [
+     [
+      "no",
+      0.99205
+     ],
+     [
+      "The",
+      0.00303
+     ],
+     [
+      "No",
+      0.00279
+     ]
+    ],
+    "prompt_tokens": 305
+   },
+   "lp_total_ms": [
+    1011,
+    144,
+    140
+   ],
+   "lp_wall_ms": [
+    1014,
+    147,
+    142
+   ],
+   "json": {
+    "score": 0.050000000000000044,
+    "verdict": false,
+    "confidence": 0.95,
+    "raw": "{\n  \"responsive\": false,\n  \"confidence\": 0.95,\n  \"reasoning\": \"The email is dated September 8, 2023, which falls outside the requested time frame of January 1, 2024, to June 30, 2024. Although the subject matter concerns the Mill Creek Bridge, the date discrepancy makes it non-responsive to the specific temporal scope of the request.\"\n}",
+    "gen_tokens": 99
+   },
+   "json_total_ms": [
+    4074,
+    3046
+   ],
+   "json_wall_ms": [
+    4076,
+    3051
+   ]
+  }
+ }
+}

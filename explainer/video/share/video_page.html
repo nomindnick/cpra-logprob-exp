@@ -1,0 +1,155 @@
+<title>One Word Is Enough video</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Besley:wght@700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow column. The film frame leads, the save controls sit directly under it, notes last. */
+:root{
+  --paper:#eef1f5; --surface:#fbfcfd; --ink:#0f1a2b; --ink2:#43526a; --ink3:#647087;
+  --rule:#d3dae4; --rule2:#b6c1d0; --warn:#b3261e;
+  --key:#ffce40; --on-key:#1b1500; --film:#0b1019;
+  --display:"Besley",Georgia,"Times New Roman",serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0b1019; --surface:#141b28; --ink:#e8edf4; --ink2:#b1bccd; --ink3:#8592a8;
+    --rule:#263146; --rule2:#3a4760; --warn:#f08a80; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0b1019; --surface:#141b28; --ink:#e8edf4; --ink2:#b1bccd; --ink3:#8592a8;
+  --rule:#263146; --rule2:#3a4760; --warn:#f08a80; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1rem/1.55 var(--body);-webkit-font-smoothing:antialiased}
+main{max-width:33rem;margin:0 auto;padding-block:2rem 3rem;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));
+  display:flex;flex-direction:column;gap:1.25rem}
+header{display:flex;flex-direction:column;gap:.4rem}
+.eyebrow{font:500 .72rem/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);margin:0}
+h1{font:700 2rem/1.1 var(--display);margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--ink2)}
+video{display:block;width:100%;max-width:100%;aspect-ratio:4/5;background:var(--film);border:1px solid var(--rule);border-radius:6px}
+.facts{font:400 .8rem/1.4 var(--mono);color:var(--ink3);margin:0;font-variant-numeric:tabular-nums}
+.saves{display:flex;flex-direction:column;gap:.6rem}
+button{font:600 1rem/1.2 var(--body);display:flex;justify-content:space-between;align-items:baseline;gap:1rem;width:100%;
+  padding:.85rem 1rem;border-radius:6px;border:1px solid var(--rule2);cursor:pointer;text-align:left}
+button span{font:500 .8rem/1.2 var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+#save-full{background:var(--key);color:var(--on-key);border-color:var(--key)}
+#save-small{background:var(--surface);color:var(--ink)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+progress{width:100%;height:6px;accent-color:var(--key)}
+#status{margin:0;min-height:1.55em;font-size:.92rem;color:var(--ink2)}
+#status.bad{color:var(--warn)}
+.notes{border-top:1px solid var(--rule);padding-top:1rem;display:flex;flex-direction:column;gap:.6rem;font-size:.9rem;color:var(--ink2)}
+.notes p{margin:0}
+code{font:400 .85em var(--mono);overflow-wrap:anywhere}
+</style>
+<main>
+  <header>
+    <p class="eyebrow">Public records × local AI</p>
+    <h1>One word is enough</h1>
+    <p class="lede">Second cut of the explainer video, with the Sawyer narration. The player shows a smaller copy. The full-quality file is the one to post.</p>
+  </header>
+
+  <video id="player" controls playsinline preload="metadata" poster="/_blob/b29eee9994f02470a2a0edd8437fbad0" src="/_blob/c5ddb859557ac79435472ab9c37786ea"></video>
+  <p class="facts">2:26 · 1080 × 1350 · MP4 (H.264, AAC)</p>
+
+  <div class="saves">
+    <button id="save-full" type="button">Save full-quality video <span>75 MB</span></button>
+    <button id="save-small" type="button">Save smaller copy <span>20 MB</span></button>
+    <progress id="bar" hidden></progress>
+    <p id="status" role="status" aria-live="polite"></p>
+  </div>
+
+  <div class="notes">
+    <p>The full-quality file is stored here in four pieces. The button fetches them, joins them and hands you one MP4. It is the same file as <code>explainer/video/out/one_word_is_enough_v2.mp4</code> on the desktop.</p>
+    <p>Every email and name shown in the video is invented. The dots carry scores only.</p>
+    <p>This page is private. Only you can open the link unless you share it.</p>
+  </div>
+</main>
+<script>
+(function () {
+  var FILES = {
+    full:  { name: 'one_word_is_enough_v2.mp4',       bytes: 75294327, parts: ['/_blob/fce99d4cf61cd172be6d973b8335cd18', '/_blob/28de4f924c329fb4ea130c7458a2e4a5', '/_blob/8f76a26ca5f888711016bc199788ac1b', '/_blob/4d1ec6d7f5cbaf4dcde5a5c809cf738a'] },
+    small: { name: 'one_word_is_enough_v2_small.mp4', bytes: 19577185, parts: ['/_blob/c5ddb859557ac79435472ab9c37786ea'] }
+  };
+  var MSG = {
+    declined: 'Not saved. Press the button again when you are ready.',
+    rate_limited: 'A save prompt is already open. Answer it, then press again.',
+    too_large: 'This app cannot save a file this size. Try the smaller copy, or open this page in a browser.',
+    incomplete: 'The file came through incomplete. Press the button to try again.',
+    fetch: 'Could not fetch the file. Check the connection and press again.',
+    nostart: 'The save did not start. Press the button again. If it still fails, open this page in a browser.',
+    unavailable: 'Saving is not available in this view. Open this page in a browser while signed in to claude.ai.'
+  };
+  var ready = {};          // joined files, kept so a second press does not fetch again
+  var noSave = false;
+  var status = document.getElementById('status');
+  var bar = document.getElementById('bar');
+  var btn = { full: document.getElementById('save-full'), small: document.getElementById('save-small') };
+  var dl = (window.claude && window.claude.use) ? window.claude.use('downloads') : Promise.resolve(null);
+
+  function say(text, bad) { status.textContent = text; status.className = bad ? 'bad' : ''; }
+  function lock(on) { btn.full.disabled = on || noSave; btn.small.disabled = on || noSave; }
+
+  if (!FILES.full.parts.length) { noSave = true; lock(true); say('The video is being put in place. Reload in a minute.'); }
+  dl.then(function (d) { if (!d && !noSave) { noSave = true; lock(true); say(MSG.unavailable, true); } });
+
+  async function fetchPart(url, onBytes) {
+    var res = await fetch(url);
+    if (!res.ok) throw new Error('fetch ' + res.status);
+    if (!res.body || !res.body.getReader) { var b = await res.blob(); onBytes(b.size); return b; }
+    var reader = res.body.getReader(), chunks = [];
+    for (;;) {
+      var step = await reader.read();
+      if (step.done) break;
+      chunks.push(step.value); onBytes(step.value.byteLength);
+    }
+    return new Blob(chunks);
+  }
+
+  async function build(key) {
+    if (ready[key]) return ready[key];
+    var f = FILES[key], got = 0, blobs = [];
+    bar.max = f.bytes; bar.value = 0; bar.hidden = false;
+    for (var i = 0; i < f.parts.length; i++) {
+      say(f.parts.length > 1 ? 'Fetching piece ' + (i + 1) + ' of ' + f.parts.length + '…' : 'Fetching…');
+      blobs.push(await fetchPart(f.parts[i], function (n) { got += n; bar.value = Math.min(got, f.bytes); }));
+    }
+    var blob = new Blob(blobs, { type: 'video/mp4' });
+    if (blob.size !== f.bytes) throw { code: 'incomplete' };
+    ready[key] = blob;
+    return blob;
+  }
+
+  async function save(key) {
+    if (btn[key].disabled) return;
+    lock(true);
+    var built = false;
+    try {
+      var d = await dl;
+      if (!d) throw { code: 'unavailable' };
+      var blob = await build(key);
+      built = true;
+      bar.hidden = true;
+      say('Ready. Confirm the save when asked.');
+      await d.save({ filename: FILES[key].name, data: blob });
+      say('Saved. Check this device’s downloads.');
+    } catch (e) {
+      bar.hidden = true;
+      var code = e && e.code;
+      if (!code) say(MSG.fetch, true);
+      else if (MSG[code] && code !== 'unavailable') say(MSG[code], code !== 'declined');
+      else say(built ? MSG.nostart : MSG.unavailable, true);
+    }
+    lock(false);
+  }
+
+  btn.full.addEventListener('click', function () { save('full'); });
+  btn.small.addEventListener('click', function () { save('small'); });
+})();
+</script>

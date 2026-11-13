@@ -1,0 +1,989 @@
+<title>CPRA Logprob Experiment</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Besley:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f5; --surface:#fbfcfd; --sunk:#e3e8ef;
+  --ink:#0f1a2b; --ink2:#43526a; --ink3:#647087;
+  --rule:#d3dae4; --rule2:#b6c1d0;
+  --pos:#2a78d6; --neg:#eb6834;
+  --pos-wash:rgba(42,120,214,.13); --neg-wash:rgba(235,104,52,.14);
+  --hl:#ffe45c; --stamp:#b3261e; --shade:rgba(15,26,43,.07);
+  --display:"Besley",Georgia,"Times New Roman",serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0b1019; --surface:#141b28; --sunk:#0f1622;
+    --ink:#e8edf4; --ink2:#b1bccd; --ink3:#8592a8;
+    --rule:#263146; --rule2:#3a4760;
+    --pos:#3987e5; --neg:#d95926;
+    --pos-wash:rgba(57,135,229,.18); --neg-wash:rgba(217,89,38,.2);
+    --hl:rgba(255,206,64,.26); --stamp:#f08a80; --shade:rgba(255,255,255,.06);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0b1019; --surface:#141b28; --sunk:#0f1622;
+  --ink:#e8edf4; --ink2:#b1bccd; --ink3:#8592a8;
+  --rule:#263146; --rule2:#3a4760;
+  --pos:#3987e5; --neg:#d95926;
+  --pos-wash:rgba(57,135,229,.18); --neg-wash:rgba(217,89,38,.2);
+  --hl:rgba(255,206,64,.26); --stamp:#f08a80; --shade:rgba(255,255,255,.06);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1.0625rem/1.6 var(--body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:700px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+a{color:inherit;text-decoration-color:var(--rule2);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ink)}
+:focus-visible{outline:2px solid var(--pos);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.15rem,5.4vw,3.9rem);line-height:1.03;letter-spacing:-.012em;max-width:17ch}
+h2{font-size:clamp(1.6rem,3.2vw,2.35rem);line-height:1.1;letter-spacing:-.008em;max-width:24ch}
+h3{font-size:1.2rem;line-height:1.25;font-weight:500;margin:2.2rem 0 .5rem}
+p{margin:0 0 1em}
+.prose{max-width:66ch}
+.prose p,.prose li{text-wrap:pretty}
+.lede{font-size:1.2rem;line-height:1.5;color:var(--ink2);max-width:60ch;margin-top:1.1rem}
+small,.small{font-size:.86rem}
+.mono{font-family:var(--mono)}
+.num{font-variant-numeric:tabular-nums}
+mark{background:linear-gradient(transparent 14%,var(--hl) 14%,var(--hl) 90%,transparent 90%);color:inherit;padding:0 .14em;margin:0 -.04em}
+.bates{display:inline-block;font:500 .7rem/1 var(--mono);letter-spacing:.09em;color:var(--ink2);border:1px solid var(--rule2);border-radius:2px;padding:5px 7px 4px;text-transform:uppercase}
+.stamp.ink{color:var(--ink);border-color:var(--ink);transform:none}
+.stamp{display:inline-block;font:600 .74rem/1 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--stamp);border:2px solid var(--stamp);border-radius:3px;padding:6px 9px 5px;transform:rotate(-1.6deg)}
+
+/* masthead */
+.mast{padding:28px 0 0}
+.mast .eyebrow{display:flex;flex-wrap:wrap;gap:8px 18px;font:500 .74rem/1.4 var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--rule2);padding-bottom:14px;margin-bottom:clamp(28px,5vw,56px)}
+.mast .eyebrow b{color:var(--ink);font-weight:600}
+
+/* layout */
+.layout{display:block}
+.toc{display:none}
+@media (min-width:1140px){
+  .layout{display:grid;grid-template-columns:196px minmax(0,1fr);gap:60px;align-items:start}
+  .toc{display:block;position:sticky;top:20px;padding-top:76px;font-size:.82rem;line-height:1.3}
+  .toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--rule2)}
+  .toc a{display:grid;grid-template-columns:2.4em 1fr;gap:4px;padding:6px 0 6px 12px;margin-left:-1px;border-left:2px solid transparent;text-decoration:none;color:var(--ink2)}
+  .toc a span{font-family:var(--mono);font-size:.7rem;color:var(--ink3);padding-top:2px}
+  .toc a:hover,.toc a.on{color:var(--ink);border-left-color:var(--ink)}
+  .toc .part{font:600 .66rem/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin:16px 0 6px 12px}
+}
+section{padding-top:clamp(56px,8vw,96px);scroll-margin-top:12px}
+.sec-head{margin-bottom:26px}
+.sec-head .bates{margin-bottom:16px}
+.part-rule{margin-top:clamp(64px,9vw,110px);border-top:3px solid var(--ink);padding-top:12px;font:600 .74rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;display:flex;justify-content:space-between;gap:12px}
+.part-rule + section{padding-top:40px}
+
+/* figures */
+.fig{margin:30px 0;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:clamp(14px,2.4vw,24px)}
+.fig figcaption,.cap{font-size:.84rem;line-height:1.45;color:var(--ink2);margin-top:14px;max-width:84ch}
+.fno{font:600 .7rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin-right:8px}
+.fig-title{font:600 .98rem/1.3 var(--body);margin:0 0 4px}
+.fig-sub{font-size:.84rem;color:var(--ink2);margin:0 0 16px;max-width:80ch}
+.cols{display:grid;gap:28px}
+@media (min-width:820px){.cols{grid-template-columns:repeat(2,minmax(0,1fr))}.cols.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols.wide-left{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--ink2);margin:0 0 12px}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+.sw-pos{background:var(--pos)}.sw-neg{background:var(--neg)}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--rule2)}
+.tiles>div{padding:16px 16px 16px 0;border-bottom:1px solid var(--rule)}
+.tiles>div:nth-child(even){padding-left:16px;border-left:1px solid var(--rule)}
+@media (min-width:860px){
+  .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tiles>div{border-bottom:0;padding:18px 18px 4px 0}
+  .tiles>div+div{padding-left:18px;border-left:1px solid var(--rule)}
+  .tiles.t3{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+.tile-v{font:700 clamp(1.7rem,3.4vw,2.5rem)/1.05 var(--body);letter-spacing:-.02em}
+.tile-v small{font:600 .9rem/1 var(--body);color:var(--ink2);letter-spacing:0;margin-left:4px}
+.tile-l{font-size:.86rem;line-height:1.4;color:var(--ink2);margin-top:6px;max-width:30ch}
+.tile-k{font:600 .68rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tile-k i{width:8px;height:8px;border-radius:50%}
+
+/* controls */
+.ctl{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:flex-end;margin-bottom:16px}
+.ctl-g{display:flex;flex-direction:column;gap:6px}
+.ctl-l{font:600 .66rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3)}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font:500 .8rem/1 var(--body);padding:7px 10px;border:1px solid var(--rule2);background:transparent;color:var(--ink);border-radius:3px;cursor:pointer}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.chip.ghost{border-style:dashed}
+
+/* strip */
+.strip{position:relative;-webkit-user-select:none;user-select:none;min-height:120px}
+.strip-svg{display:block;width:100%;height:auto;overflow:visible}
+.dot.pos{fill:var(--pos)}.dot.neg{fill:var(--neg)}
+.dot.gone{opacity:.26}
+.dot.miss{stroke:var(--ink);stroke-width:1.5px}
+.dot.sel{stroke:var(--ink);stroke-width:3px;opacity:1}
+.shade{fill:var(--shade)}
+.cut-line{stroke:var(--ink);stroke-width:1.5px}
+.ax{stroke:var(--rule2);stroke-width:1px}
+.tk{font:500 11px var(--mono);fill:var(--ink3)}
+.lbl{font:600 12px var(--body);fill:var(--ink2)}
+.cap-t{font:500 11px var(--mono);fill:var(--ink2);letter-spacing:.04em}
+.band-hit{fill:transparent;cursor:ew-resize;touch-action:none}
+.cut-h{position:absolute;top:2px;transform:translateX(-50%);font:600 .8rem/1 var(--mono);background:var(--ink);color:var(--paper);border:0;border-radius:3px;padding:7px 9px 6px;cursor:ew-resize;touch-action:none;white-space:nowrap}
+.cut-h::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:var(--ink)}
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--paper);font-size:.8rem;line-height:1.35;padding:8px 10px;border-radius:3px;max-width:280px}
+.tip b{display:block;font:600 .92rem/1.2 var(--mono)}
+.tip span{display:block;opacity:.8}
+
+/* row charts */
+.rows{display:grid;gap:5px}
+.rw{display:grid;grid-template-columns:var(--labw,6.2rem) minmax(0,1fr) var(--valw,3.4rem);gap:10px;align-items:center;font-size:.84rem}
+.rw .lab{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rw .lab small{color:var(--ink3)}
+.rw .val{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.rw .trk{position:relative;height:20px;border-left:1px solid var(--rule2);background-image:linear-gradient(to right,transparent calc(100% - 1px),var(--rule) calc(100% - 1px));background-size:calc(100%/var(--div,4)) 100%}
+.rw .ci{position:absolute;top:9px;height:2px;background:var(--ink2);border-radius:1px}
+.rw .pt{position:absolute;top:5px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+.rw .pt.hollow{background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink)}
+.rw .pt.dia{border-radius:1px;transform:rotate(45deg);width:9px;height:9px}
+.rw .bar{position:absolute;left:0;top:4px;height:12px;background:var(--ink);border-radius:0 3px 3px 0;min-width:1px}
+.rw .bar.pos{background:var(--pos)}.rw .bar.neg{background:var(--neg)}.rw .bar.soft{background:var(--rule2)}
+.rw .bar.thin{top:7px;height:6px}
+.rw .refl{position:absolute;top:-3px;bottom:-3px;width:0;border-left:1.5px solid var(--stamp)}
+.rw.grp{margin-top:10px}
+.rw.grp .lab{font:600 .66rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);grid-column:1/-1}
+.rw.dim .lab,.rw.dim .val{color:var(--ink3)}
+.rw.dim .pt{background:var(--ink3)}.rw.dim .ci{background:var(--rule2)}
+.rw.axis .trk{height:16px;background:none;border:0}
+.rw.axis .trk span{position:absolute;top:0;transform:translateX(-50%);font:500 .68rem/1 var(--mono);color:var(--ink3);white-space:nowrap}
+.rw.axis .trk span:first-child{transform:none}.rw.axis .trk span:last-child{transform:translateX(-100%)}
+.rw.hl .lab{font-weight:700}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{text-align:left;padding:8px 10px 8px 4px;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font:600 .68rem/1.3 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--rule2);vertical-align:bottom}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.em td{font-weight:700}
+.heat td.h{text-align:center;font-variant-numeric:tabular-nums;padding:8px 4px;border-bottom:2px solid var(--surface);border-left:2px solid var(--surface);min-width:3.2rem}
+
+/* misc blocks */
+.flow{display:grid;gap:10px;margin:8px 0 4px;counter-reset:st}
+@media (min-width:860px){.flow{grid-template-columns:repeat(5,minmax(0,1fr));gap:0}}
+.flow>div{position:relative;padding:14px 16px;border:1px solid var(--rule2);background:var(--surface);font-size:.86rem;line-height:1.4;color:var(--ink2)}
+@media (min-width:860px){.flow>div+div{border-left:0}}
+.flow b{display:block;color:var(--ink);font-size:.95rem;margin-bottom:4px}
+.flow>div::before{counter-increment:st;content:"0" counter(st);display:block;font:600 .68rem/1 var(--mono);letter-spacing:.08em;color:var(--ink3);margin-bottom:10px}
+.flow .hot{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.flow .hot b,.flow .hot::before{color:var(--paper)}
+.flow .hot em{display:inline-block;font:600 .66rem/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;font-style:normal;background:var(--hl);color:#0f1a2b;padding:4px 6px;border-radius:2px;margin-top:10px}
+:root[data-theme="dark"] .flow .hot em{background:#ffe45c}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .flow .hot em{background:#ffe45c}}
+.cards{display:grid;gap:14px}
+@media (min-width:700px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1000px){.cards.c4{grid-template-columns:repeat(4,minmax(0,1fr))}.cards.c3{grid-template-columns:repeat(3,minmax(0,1fr))}.cards.c5{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:16px 18px;font-size:.88rem;line-height:1.45;color:var(--ink2)}
+.card h4{font:600 .98rem/1.25 var(--body);color:var(--ink);margin:0 0 6px}
+.card .k{font:600 .66rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:block}
+.card .big{font:700 1.5rem/1 var(--body);color:var(--ink);letter-spacing:-.01em}
+.card p:last-child{margin-bottom:0}
+.eg{font:400 .78rem/1.45 var(--mono);color:var(--ink);background:var(--sunk);padding:8px 10px;border-radius:3px;margin-top:10px;overflow-wrap:anywhere}
+.quote{font:400 .9rem/1.6 var(--mono);background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--ink);padding:18px 20px;margin:22px 0;max-width:78ch;overflow-wrap:anywhere}
+.quote .who{display:block;font:600 .66rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.rule-pair{display:grid;gap:14px;margin:22px 0}
+@media (min-width:820px){.rule-pair{grid-template-columns:1fr 1fr}}
+.rule-card{border:1px solid var(--ink);border-radius:4px;padding:20px 22px;background:var(--surface)}
+.rule-card h4{font:700 1.3rem/1.15 var(--display);margin:8px 0 10px}
+.rule-card p{font-size:.92rem;color:var(--ink2);margin-bottom:.7em}
+.rule-card q{display:block;font-style:italic;color:var(--ink);quotes:"“" "”";margin-top:10px}
+.docket{list-style:none;margin:18px 0;padding:0;border-top:1px solid var(--rule2);font-size:.9rem}
+.docket li{display:grid;grid-template-columns:minmax(0,1fr);gap:4px 18px;padding:12px 0;border-bottom:1px solid var(--rule)}
+@media (min-width:820px){.docket li{grid-template-columns:8.5rem minmax(0,1fr) 11rem}}
+.docket .d{font:500 .74rem/1.5 var(--mono);color:var(--ink3)}
+.docket .v{font:600 .74rem/1.4 var(--mono);letter-spacing:.05em;text-transform:uppercase}
+.docket .v i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:.86rem;margin:0}
+.kv dt{font:500 .74rem/1.7 var(--mono);color:var(--ink3)}.kv dd{margin:0;overflow-wrap:anywhere}
+.note{border-left:3px solid var(--hl);padding:2px 0 2px 16px;margin:22px 0;color:var(--ink2);font-size:.94rem;max-width:66ch}
+.warn{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--rule2);border-radius:4px;padding:12px 14px;font-size:.86rem;color:var(--ink2);margin-top:26px;max-width:84ch}
+.warn b{color:var(--ink)}
+ul.tight{padding-left:1.1em;margin:0 0 1em}ul.tight li{margin-bottom:.45em}
+
+/* token demo */
+.demo{display:grid;gap:22px}
+@media (min-width:900px){.demo{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+.prompt{font:400 .78rem/1.5 var(--mono);background:var(--sunk);border-radius:4px;padding:14px 16px;overflow-wrap:anywhere}
+.prompt .role{display:block;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:.66rem;color:var(--ink3);margin:12px 0 4px}
+.prompt .role:first-child{margin-top:0}
+.prompt .dim{color:var(--ink2)}
+.tokrow{display:grid;grid-template-columns:4.2rem minmax(0,1fr) 3.6rem;gap:10px;align-items:center;font:500 .86rem/1 var(--mono);margin-bottom:8px}
+.tokrow .t{background:var(--sunk);padding:6px 8px;border-radius:3px;text-align:center}
+.tokrow .b{height:14px;border-radius:0 3px 3px 0;background:var(--rule2);min-width:2px;transition:width .35s ease}
+.tokrow .b.pos{background:var(--pos)}.tokrow .b.neg{background:var(--neg)}
+.tokrow .v{text-align:right}
+.formula{font:500 .86rem/1.7 var(--mono);border-top:1px solid var(--rule);margin-top:16px;padding-top:14px;overflow-wrap:anywhere}
+.formula b{font-size:1.5rem;font-family:var(--body);letter-spacing:-.01em}
+
+/* unit grid */
+.ugrid{display:grid;gap:26px}
+@media (min-width:860px){.ugrid{grid-template-columns:1fr 1fr}}
+.ublock{margin-bottom:12px}
+.ublock .ul{display:flex;justify-content:space-between;gap:8px;font-size:.8rem;color:var(--ink2);margin-bottom:5px}
+.ublock .ul b{color:var(--ink);font-weight:600}
+.usq{display:flex;flex-wrap:wrap;gap:2px}
+.usq button{width:11px;height:11px;padding:0;border:0;border-radius:1.5px;cursor:pointer;background:var(--pos)}
+.usq button.neg{background:var(--neg)}
+.usq button:hover,.usq button[aria-pressed="true"]{outline:2px solid var(--ink);outline-offset:1px}
+
+/* email */
+.mail{border:1px solid var(--rule2);border-radius:3px;background:var(--surface);padding:16px 18px;font-size:.86rem;position:relative}
+.mail .hd{font:400 .78rem/1.6 var(--mono);color:var(--ink2);border-bottom:1px solid var(--rule);padding-bottom:10px;margin-bottom:10px;overflow-wrap:anywhere}
+.mail .hd b{color:var(--ink);font-weight:600}
+.mail .body{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink2);font-size:.84rem;line-height:1.5;max-height:11em;overflow:hidden}
+.mail .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{font:600 .66rem/1 var(--mono);letter-spacing:.07em;text-transform:uppercase;padding:5px 7px 4px;border-radius:2px;border:1px solid var(--rule2);color:var(--ink2)}
+.tag.pos{background:var(--pos-wash);border-color:transparent;color:var(--ink)}
+.tag.neg{background:var(--neg-wash);border-color:transparent;color:var(--ink)}
+.mail-empty{border:1px dashed var(--rule2);border-radius:3px;padding:18px;color:var(--ink3);font-size:.86rem}
+.mlist{list-style:none;margin:0;padding:0;max-height:300px;overflow:auto;border-top:1px solid var(--rule)}
+.mlist button{display:grid;grid-template-columns:3.4rem minmax(0,1fr);gap:10px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--rule);padding:8px 4px;font:inherit;font-size:.82rem;color:var(--ink);cursor:pointer}
+.mlist button:hover,.mlist button[aria-pressed="true"]{background:var(--sunk)}
+.mlist .sc{font:500 .8rem/1.5 var(--mono)}
+.mlist .sj{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mlist .kd{display:block;color:var(--ink3);font-size:.74rem}
+.mlist-empty{padding:14px 4px;color:var(--ink3);font-size:.84rem}
+.subh{font:600 .68rem/1.3 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink2);margin:0 0 10px}
+.svgc text{font-family:var(--body)}
+.svgc .grid{stroke:var(--rule);stroke-width:1}
+.svgc .axl{stroke:var(--rule2);stroke-width:1}
+.svgc .ln{fill:none;stroke:var(--rule2);stroke-width:1.2}
+.svgc .ln.on{stroke:var(--ink);stroke-width:2}
+.svgc .mk{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+.svgc .mk.hollow{fill:var(--surface);stroke:var(--ink3);stroke-width:1.6}
+.svgc .tl{font-size:11px;fill:var(--ink3);font-family:var(--mono)}
+.svgc .pl{font-size:12px;fill:var(--ink);font-weight:600}
+.svgc .pl.dim{fill:var(--ink3);font-weight:400}
+.svgc .al{font-size:11.5px;fill:var(--ink2)}
+.svgc .front{fill:none;stroke:var(--ink);stroke-width:1.2}
+.svgc .ref{stroke:var(--stamp);stroke-width:1.2}
+
+/* reliability multiples */
+.rel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (min-width:820px){.rel{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.rel h5{font:600 .84rem/1.2 var(--mono);margin:0 0 2px}
+.rel p{font-size:.76rem;color:var(--ink3);margin:0 0 8px}
+.relbars{display:flex;align-items:flex-end;gap:2px;height:96px;border-bottom:1px solid var(--rule2);border-left:1px solid var(--rule2);padding-left:2px}
+.relbars i{flex:1;background:var(--pos);border-radius:2px 2px 0 0;min-height:1px}
+.relax{display:flex;justify-content:space-between;font:500 .66rem/1 var(--mono);color:var(--ink3);margin-top:5px}
+
+/* scorecard, timeline, glossary */
+.verdicts{display:grid;gap:14px}
+@media (min-width:900px){.verdicts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.verdict{background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:20px}
+.verdict .h{font:600 .7rem/1 var(--mono);letter-spacing:.09em;color:var(--ink3);margin-bottom:8px}
+.verdict h4{font:700 1.15rem/1.2 var(--display);margin:0 0 14px}
+.verdict p{font-size:.88rem;color:var(--ink2);margin:14px 0 0}
+.tl{list-style:none;margin:0;padding:0;border-left:1px solid var(--rule2)}
+.tl li{position:relative;padding:0 0 20px 22px;font-size:.92rem;max-width:74ch}
+.tl li::before{content:"";position:absolute;left:-5px;top:7px;width:9px;height:9px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.tl li.key::before{background:var(--ink)}
+.tl time{display:block;font:600 .7rem/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.gloss{display:grid;gap:0 32px;margin:0}
+@media (min-width:820px){.gloss{grid-template-columns:1fr 1fr}}
+.gloss div{padding:12px 0;border-top:1px solid var(--rule);font-size:.9rem;break-inside:avoid}
+.gloss dt{font-weight:700}
+.gloss dd{margin:2px 0 0;color:var(--ink2)}
+.claims{counter-reset:c;display:grid;gap:14px}
+@media (min-width:900px){.claims{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.claims .card::before{counter-increment:c;content:"Option " counter(c,upper-alpha);display:block;font:600 .66rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.toc-m{margin:26px 0 0;border:1px solid var(--rule2);border-radius:4px;background:var(--surface);font-size:.9rem}
+.toc-m summary{cursor:pointer;padding:12px 14px;font:600 .72rem/1 var(--mono);letter-spacing:.09em;text-transform:uppercase}
+.toc-m ol{margin:0;padding:0 14px 12px 14px;list-style:none;columns:2;column-gap:20px}
+.toc-m li{padding:4px 0;break-inside:avoid}
+.toc-m a{text-decoration:none}
+.toc-m span{font-family:var(--mono);font-size:.72rem;color:var(--ink3);margin-right:6px}
+@media (min-width:1140px){.toc-m{display:none}}
+.hero-fig{margin-top:clamp(28px,4vw,44px)}
+.readout{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border-top:1px solid var(--rule);margin-top:14px}
+.readout>div{padding:12px 12px 2px 0}
+.readout>div+div{padding-left:14px;border-left:1px solid var(--rule)}
+@media (max-width:719px){.readout:not(.r4)>div:nth-child(3){grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--rule);margin-top:10px}.readout.r4>div:nth-child(n+3){border-top:1px solid var(--rule);margin-top:10px}.readout.r4>div:nth-child(3){border-left:0;padding-left:0}}
+@media (min-width:720px){.readout{grid-template-columns:repeat(3,minmax(0,1fr))}.readout.r4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.readout .tile-v{font-size:clamp(1.35rem,2.6vw,1.9rem)}
+.heat td.h{color:var(--ink)}
+:root[data-theme="dark"] .heat td.h.hi{color:#0b1019}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .heat td.h.hi{color:#0b1019}}
+.split{display:grid;gap:22px}
+@media (min-width:980px){.split{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}}
+.h-mail{margin-top:16px}
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+footer{margin-top:96px;border-top:1px solid var(--rule2);padding:18px 0 48px;font:400 .76rem/1.6 var(--mono);color:var(--ink3)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<header class="mast"><div class="wrap">
+  <div class="eyebrow"><b>CPRA Logprob Experiment</b><span>Sept 22 to Nov 11, 2026</span><span>Private working page</span><span>Contains real produced emails</span></div>
+  <span class="bates">EXP-0000 · Summary</span>
+  <h1 style="margin-top:18px;max-width:21ch">One token is enough to <mark>rank the pile</mark>. Where to cut it is the hard part.</h1>
+  <p class="lede">This project tested whether a small language model running on one desktop can pre-screen email for a California Public Records Act request. This page explains all of it from the start: the idea, the data, every test, the detours, and what the numbers do and do not show.</p>
+
+  <figure class="fig hero-fig" id="hero">
+    <p class="fig-title">Every dot is one email, placed by the score a local model gave it</p>
+    <p class="fig-sub">496 pairs, each one email checked against one records request. Drag the cutoff. Everything to its left is screened out and never reaches a reviewer.</p>
+    <div class="ctl">
+      <div class="ctl-g"><span class="ctl-l">Scored by</span><div class="seg" id="hero-models"></div></div>
+      <div class="ctl-g"><span class="ctl-l">Jump to</span><div class="seg"><button class="chip ghost" id="hero-98">98% recall cutoff</button><button class="chip ghost" id="hero-50">0.5</button></div></div>
+    </div>
+    <div class="legend"><span><i class="sw-pos"></i>Responsive to the request</span><span><i class="sw-neg"></i>Not responsive</span><span>Ringed dot: a responsive email the cutoff screens out</span></div>
+    <div class="strip" id="hero-strip"></div>
+    <div class="readout" id="hero-read"></div>
+    <div class="h-mail" id="hero-mail"></div>
+    <figcaption><span class="fno">Fig. 0</span>The final test set, both requests together. Scores run from 0 (the model says no) to 1 (yes). The axis is stretched near both ends, where most of the scores sit. Drag the cutoff, or click a dot to read the email. The 98% cutoff here is chosen with the labels in hand, which a real deployment cannot do. Section 13 covers that.</figcaption>
+  </figure>
+
+  <div class="tiles">
+    <div><div class="tile-v">496</div><div class="tile-l">request and email pairs in the final test set. 270 use real emails, 226 use synthetic ones.</div></div>
+    <div><div class="tile-v">13</div><div class="tile-l">model configurations scored on the same pairs, on one desktop and one hosted service.</div></div>
+    <div><div class="tile-v">53–83<small>%</small></div><div class="tile-l">of non-responsive email cleared while keeping 98% of responsive email, with the cutoff chosen after seeing the answers.</div></div>
+    <div><div class="tile-v">43–48<small>%</small></div><div class="tile-l">cleared by the best models when the non-responsive email is a near miss dated inside the request's window.</div></div>
+  </div>
+
+  <div class="warn"><span class="stamp">Private</span><span><b>Keep this link to yourself.</b> The County's productions are public, but they name private residents, and this page shows excerpts from 259 of those emails. The public video and post will use synthetic emails only.</span></div>
+
+  <details class="toc-m"><summary>Contents</summary><ol id="toc-m"></ol></details>
+</div></header>
+
+<div class="wrap layout">
+<nav class="toc" aria-label="Contents"><ol id="toc"></ol></nav>
+<main>
+
+<div class="part-rule"><span>Part I</span><span>The idea</span></div>
+
+<section id="s01" data-t="The problem">
+  <div class="sec-head"><span class="bates">EXP-0001</span><h2>A broad search returns a pile, and people sort it by hand</h2></div>
+  <div class="prose">
+    <p>When a California Public Records Act (CPRA) request arrives, the agency usually runs a broad keyword search over its email. The terms have to be broad, or responsive records get missed. Broad terms also pull in a large volume of email that has nothing to do with the request.</p>
+    <p>Staff then read the results and decide, one email at a time, whether each is <b>responsive</b>, meaning it is a record the request asks for. Only after that does exemption review begin. The hand sort is the bottleneck.</p>
+  </div>
+  <figure class="fig">
+    <div class="flow">
+      <div><b>Request arrives</b>A member of the public asks for records.</div>
+      <div><b>Keyword search</b>Broad on purpose, so nothing responsive is left out.</div>
+      <div class="hot"><b>Hand sort</b>Is each hit responsive or not? Read every one.<br><em>The bottleneck</em></div>
+      <div><b>Exemption review</b>Privilege, personnel, privacy. Redactions.</div>
+      <div><b>Production</b>Records go to the requester.</div>
+    </div>
+    <figcaption><span class="fno">Fig. 1</span>Where the experiment sits. It targets step 3 only. A model that reliably removes part of the pile shortens the hand sort and touches nothing else.</figcaption>
+  </figure>
+  <div class="cards c3">
+    <div class="card"><span class="k">Why local</span><h4>The records can't go to a vendor</h4><p>Search results include student files, attorney–client material and personnel records. A model that runs on the agency's own hardware never sends them anywhere.</p></div>
+    <div class="card"><span class="k">Why not the 2025 approach</span><h4>It took 30 to 60 seconds per document</h4><p>An earlier attempt had small local models write out a JSON answer with a decision, a confidence and reasoning. On a CPU-only laptop that was too slow to use at real volumes.</p></div>
+    <div class="card"><span class="k">Scope</span><h4>Responsive is not the same as disclosable</h4><p>An exempt email is still responsive. The experiment only asks whether an email is something the request covers. Whether it can be withheld is a separate, later step.</p></div>
+  </div>
+</section>
+
+<section id="s02" data-t="The trick">
+  <div class="sec-head"><span class="bates">EXP-0002</span><h2>Stop the model after one token and read its odds</h2></div>
+  <div class="prose">
+    <p>A language model writes one <b>token</b> at a time. A token is a word or a piece of one. Before it writes each token, the model gives a probability to every token it knows. Normally the software picks one, moves on, and throws the probabilities away.</p>
+    <p>This experiment keeps them. The prompt shows the model a request and one email and asks for a one-word answer, yes or no. The model reads the prompt once. The run stops at the first token, and the score comes straight from the probabilities on <span class="mono">yes</span> and <span class="mono">no</span>. Nothing is generated. The log of a token's probability is called a <b>logprob</b>, which is where the project gets its name.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">What the model sees, and what it was about to say</p>
+    <p class="fig-sub">Three real emails scored by the 27B model against request 24-409. The bars are the model's actual first-token probabilities.</p>
+    <div class="ctl"><div class="ctl-g"><span class="ctl-l">Email</span><div class="seg" id="tok-chips"></div></div></div>
+    <div class="demo">
+      <div class="prompt" id="tok-prompt"></div>
+      <div>
+        <p class="subh">Top three first tokens</p>
+        <div id="tok-bars"></div>
+        <div class="formula" id="tok-formula"></div>
+      </div>
+    </div>
+    <figcaption><span class="fno">Fig. 2</span>The score adds up every spelling of each answer (<span class="mono">yes</span>, <span class="mono">Yes</span>, and so on) and divides yes by yes plus no. A torn model gives a score near the middle, which a generated "yes" or "no" would hide.</figcaption>
+  </figure>
+  <div class="cols wide-left">
+    <figure class="fig" style="margin:0">
+      <p class="fig-title">One step instead of a paragraph</p>
+      <p class="fig-sub">Median seconds per email on the final test set. Same model, same emails, one at a time.</p>
+      <div class="legend"><span><i style="background:var(--ink);border-radius:2px"></i>Yes/no score</span><span><i style="background:var(--rule2);border-radius:2px"></i>Generated JSON answer</span></div>
+      <div class="rows" id="time-bars" style="--labw:8.6rem;--valw:3.2rem"></div>
+      <figcaption><span class="fno">Fig. 3</span>The JSON answer is 2.6 to 2.7 times slower on the 27B model and 5.2 to 6.2 times slower on the two small ones. Part of the small models' gap comes from the large batch setting their JSON runs used (section 8).</figcaption>
+    </figure>
+    <div class="cards" style="grid-template-columns:1fr;align-content:start">
+      <div class="card"><span class="k">Known mechanism</span><h4>Rerankers already work this way</h4><p>Search systems use language models as rerankers by reading the same yes/no probability. That is evidence the idea is sound, and it was the planned baseline.</p></div>
+      <div class="card"><span class="k">Where the idea came from</span><h4>Jev, a hosted decision model</h4><p>TypeSafe's Jev returns a probability for a yes/no question about a document. It is fast and cheap, but it is an outside service. The question here was how close a local model can get.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="part-rule"><span>Part II</span><span>First pass on real productions</span></div>
+
+<section id="s03" data-t="The first dataset">
+  <div class="sec-head"><span class="bates">EXP-0003</span><h2>2,462 real emails from four San Diego County requests</h2></div>
+  <div class="prose">
+    <p>The County of San Diego posts what it produces in response to records requests. The first dataset took every email from four of those productions. Each email was paired with each of the four requests, which gives 9,848 pairs.</p>
+    <p>The first labels were crude. An email counted as responsive to the request it was produced for (2,462 pairs) and not responsive to the other three (7,386 pairs).</p>
+  </div>
+  <figure class="fig">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Request</th><th>What it asks for</th><th>Type</th><th class="n">Emails produced</th></tr></thead>
+      <tbody>
+        <tr class="em"><td class="mono">24-409</td><td>Records about a UCSD and Geosyntec regional water equity report, listed people and terms, January to July 2023</td><td>Topical</td><td class="n">1,204</td></tr>
+        <tr class="em"><td class="mono">25-3152</td><td>All communications of any member of the Alpine Community Planning Group, January 2024 to May 2025</td><td>By correspondent</td><td class="n">922</td></tr>
+        <tr><td class="mono">25-4697</td><td>The Harmony Grove Village South project. The real request was an attachment the portal doesn't expose</td><td>Topical</td><td class="n">207</td></tr>
+        <tr><td class="mono">25-5982</td><td>Named County mailboxes plus keywords (CAIR, Gaza and others), with typos</td><td>Custodian and keyword</td><td class="n">129</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><span class="fno">Fig. 4</span>The two requests in bold type later became the final test set. One is about a subject. The other is about who is talking, whatever the subject. That difference turned out to matter more than anything else in the project.</figcaption>
+  </figure>
+  <p class="note">A limit that follows the project to the end: agencies publish what they produced, never what they screened out. So the non-responsive examples here are other requests' records. Most are easy to tell apart, and that flatters every model. Section 14 measures how much.</p>
+</section>
+
+<section id="s04" data-t="First run and sweep">
+  <div class="sec-head"><span class="bates">EXP-0004</span><h2>The first run worked, and the spot check said the labels were the problem</h2></div>
+  <div class="prose">
+    <p>On September 22 a 4-billion-parameter Qwen model scored all 9,848 pairs in 159 minutes, about one second each. It ranked well. Its AUROC was 0.933, where 1.0 is a perfect ranking and 0.5 is a coin flip. But to keep 98% of the responsive emails it could clear only 35% of the rest. A fixed cutoff of 0.5 kept only 72% of the responsive emails.</p>
+  </div>
+  <div class="tiles">
+    <div><div class="tile-v">0.933</div><div class="tile-l">AUROC on the raw labels</div></div>
+    <div><div class="tile-v">35<small>%</small></div><div class="tile-l">of non-responsive pairs cleared at 98% recall (60% at 95%)</div></div>
+    <div><div class="tile-v">968<small>ms</small></div><div class="tile-l">per pair, none of it spent generating text</div></div>
+    <div><div class="tile-v">72<small>%</small></div><div class="tile-l">recall at a fixed cutoff of 0.5</div></div>
+  </div>
+  <h3>What reading the 100 worst errors showed</h3>
+  <div class="prose"><p>The 50 lowest-scoring "responsive" pairs and the 50 highest-scoring "non-responsive" pairs were read by hand. None of the four findings was simply a model mistake.</p></div>
+  <div class="cards">
+    <div class="card"><span class="k">Finding 1</span><h4>Some requests are about people</h4><p>Request 25-3152 asks for all communications of planning-group members. An SDG&amp;E wildfire-fair notice, a password reset and "RE: hi" are all plausibly responsive. The model judged topic and scored them near 0.02. It also has no way to know who the members are.</p></div>
+    <div class="card"><span class="k">Finding 2</span><h4>One request never says what it wants</h4><p>The portal text for 25-4697 is "Please see the attached Public Records Act request." The model still reached 99.5% recall from the requester's follow-up message and the subject lines.</p></div>
+    <div class="card"><span class="k">Finding 3</span><h4>A garbled request reads as a broad one</h4><p>25-5982 is a list of mailboxes and keywords with typos. Recall was 100% but only 6% of the other email was cleared. A plain keyword filter would handle this request better.</p></div>
+    <div class="card"><span class="k">Finding 4</span><h4>Near neighbors score high, as they should</h4><p>The highest-scoring negatives for the Alpine request were Harmony Grove emails. Same county, same kind of land-use dispute, a different community.</p></div>
+  </div>
+  <h3>Five models, same pairs</h3>
+  <figure class="fig">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Model</th><th class="n">AUROC</th><th class="n">Cleared at 95% recall</th><th class="n">At 98%</th><th class="n">ms per email</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">gemma4:e2b</td><td class="n">0.803</td><td class="n">35%</td><td class="n">20%</td><td class="n">699</td></tr>
+        <tr><td class="mono">gemma4:e4b</td><td class="n">0.923</td><td class="n">63%</td><td class="n">42%</td><td class="n">862</td></tr>
+        <tr><td class="mono">qwen3.5:4b</td><td class="n">0.931</td><td class="n">57%</td><td class="n">40%</td><td class="n">973</td></tr>
+        <tr class="em"><td class="mono">qwen3.5:9b</td><td class="n">0.963</td><td class="n">80%</td><td class="n">54%</td><td class="n">1,452</td></tr>
+        <tr><td class="mono">gemma4:12b</td><td class="n">0.917</td><td class="n">72%</td><td class="n">49%</td><td class="n">2,127</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><span class="fno">Fig. 5</span>The sweep of September 25, raw labels. Bigger was not automatically better: the 12B Gemma ranked below the 4B one. The Qwen rows were later found to come from a faulty backend state (section 8), so their cutoffs are provisional. The Gemma rows were never tested for that fault. The sweep was not rerun.</figcaption>
+  </figure>
+  <figure class="fig">
+    <p class="fig-title">Does a higher score mean a more likely match?</p>
+    <p class="fig-sub">Share of pairs that are responsive in each tenth of the score range. A usable score climbs steadily from left to right.</p>
+    <div class="rel" id="rel"></div>
+    <figcaption><span class="fno">Fig. 6</span>Both Qwen models climb at every step. Both Gemma models sit flat near 0.4 across the middle. The 12B Gemma puts 66% of all pairs below 0.001, so there is no useful place to set a cutoff. Similar AUROC, very different scores. Qwen went forward.</figcaption>
+  </figure>
+  <div class="cards">
+    <div class="card"><span class="k">Detour</span><h4>Gemma silently returned garbage</h4><p>On this build the Gemma models would slip into a state where the first token became <span class="mono">&lt;unused49&gt;</span> and stayed there until the model was unloaded. One full run produced 9,842 garbage rows out of 9,848. The fix was a canary: rescore a fixed pair every 100 calls and reload on drift. Clean reruns needed 3, 123 and 272 reloads.</p></div>
+    <div class="card"><span class="k">Hardware check</span><h4>A CPU laptop ranks the same and takes 13 times as long</h4><p>On a Framework 13 without GPU help, the 4B model took 12.9 seconds per email against 1.0 on the desktop. On a 500-pair subset AUROC was 0.945 against 0.942, though the desktop side of that comparison ran in the backend state later found faulty (section 8). Ranking carried across hardware. A fixed cutoff did not. The full 9,848 pairs would take about 40 hours. Laptop runs were dropped on November 4.</p></div>
+  </div>
+</section>
+
+<div class="part-rule"><span>Part III</span><span>A harder, purpose-built test</span></div>
+
+<section id="s05" data-t="The golden set">
+  <div class="sec-head"><span class="bates">EXP-0005</span><h2>The golden set: 496 pairs built to be hard</h2></div>
+  <div class="prose">
+    <p>The spot check exposed two weaknesses. "Produced" is a noisy label in both directions. And the non-responsive examples were too easy. So on September 25 the project moved to a smaller set, designed to probe specific failures, with Opus pre-labels and a lawyer deciding the doubtful ones. The spec calls it the golden set.</p>
+    <p>It covers two requests, one of each type: 24-409 is about a subject, and 25-3152 is about who is writing to whom. Each pair is one email checked against one request. 270 pairs use real emails. That is 259 different emails, because 11 are checked against both requests. The other 226 pairs use synthetic emails: Opus edited 130 real emails, keeping the sender, the signature block and the shape of the thread, and changing the substance according to a recipe. 230 were written and 4 were dropped.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">All 496 pairs, by request and kind</p>
+    <p class="fig-sub">One square per pair. Click any square to read the email.</p>
+    <div class="legend"><span><i class="sw-pos" style="border-radius:2px"></i>Responsive (289)</span><span><i class="sw-neg" style="border-radius:2px"></i>Not responsive (207)</span></div>
+    <div class="ugrid" id="ugrid"></div>
+    <div class="h-mail" id="golden-mail"><div class="mail-empty">Click a square to read that email and see how every model scored it.</div></div>
+    <figcaption><span class="fno">Fig. 7</span>The set is 58.3% responsive by design. A real search result has a much lower share, which matters for the workload estimates in section 15.</figcaption>
+  </figure>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Kind</th><th class="n">Count</th><th>Label</th><th>What it tests</th></tr></thead>
+    <tbody>
+      <tr><td>Real, produced for this request</td><td class="n">150</td><td>Responsive</td><td>The ordinary case.</td></tr>
+      <tr><td>Real, produced for another request</td><td class="n">120</td><td>Not responsive</td><td>Easy negatives. 118 of the 120 fall outside the request's date window.</td></tr>
+      <tr><td>Close call</td><td class="n">50</td><td>Responsive</td><td>A real email edited so the responsive part is one marginal mention.</td></tr>
+      <tr><td>Privileged</td><td class="n">40</td><td>Responsive</td><td>Attorney–client content added. An exempt email must still score as responsive.</td></tr>
+      <tr><td>Other exempt</td><td class="n">40</td><td>Responsive</td><td>Personnel or deliberative content added. Same test.</td></tr>
+      <tr><td>Hard negative</td><td class="n">87</td><td>Not responsive</td><td>Near misses, built from the five recipes below.</td></tr>
+      <tr><td>Flipped hard negative</td><td class="n">9</td><td>Responsive</td><td>Written as near misses, then judged responsive on review (section 6).</td></tr>
+    </tbody>
+  </table></div>
+  <h3>The five near-miss recipes</h3>
+  <div class="cards c5">
+    <div class="card"><span class="k">20 emails</span><h4>Same subject, wrong date</h4><p>On topic, with the right people, but dated outside the request's window.</p><div class="eg">"UCSD Role for Water Assembly", dated April 10, 2025. The window ends July 31, 2023.</div></div>
+    <div class="card"><span class="k">20 emails</span><h4>Keyword in an unrelated sense</h4><p>A listed term appears and means something else.</p><div class="eg">"RE: Regional Fair Housing Report". A different regional report.</div></div>
+    <div class="card"><span class="k">20 emails</span><h4>Keyword only in a signature or newsletter</h4><p>The term is in boilerplate. The message itself is about something else.</p><div class="eg">A webinar confirmation with "UC San Diego" in the footer.</div></div>
+    <div class="card"><span class="k">17 emails</span><h4>Forwarded with no content</h4><p>A calendar reply or bare forward on an off-topic thread.</p><div class="eg">"Accepted: Rehearsal for 6/28 Board Item", with an empty body.</div></div>
+    <div class="card"><span class="k">10 emails</span><h4>Same people, different subject</h4><p>Named correspondents writing about something the request doesn't cover.</p><div class="eg">"Blood Drive Flyer", from a named County employee.</div></div>
+  </div>
+  <h3>How the labels were made</h3>
+  <div class="prose">
+    <ul class="tight">
+      <li>Opus pre-labeled 420 real emails and gave a reason for each.</li>
+      <li>You checked every pre-label that disagreed with what the County produced, plus a random sample. All 81 in the sample were confirmed.</li>
+      <li>A second model pass reviewed each synthetic email, and you ruled on every one it flagged.</li>
+      <li>Labels that the models' own reasoning or the later misses analysis called into question were re-read and decided. 136 human calls were applied in all, 14 of them on emails that are not in the final set.</li>
+    </ul>
+    <p>That leaves 185 of the 270 real pairs and 189 of the 226 synthetic ones without an individual human call. The random check puts the disagreement rate under 3.6%, but it was done on a page that showed Opus's suggestion, so it bounds disagreement with a visible suggestion. A blind second reader would settle it.</p>
+  </div>
+</section>
+
+<section id="s06" data-t="The label rules">
+  <div class="sec-head"><span class="bates">EXP-0006</span><h2>Two rules decided the hard calls</h2></div>
+  <div class="prose"><p>Some labels were legal judgment calls about the scope of a request. You made them as the attorney, and two rules came out of the decisions. They point in opposite directions, and the difference is who created the ambiguity.</p></div>
+  <div class="rule-pair">
+    <div class="rule-card"><span class="bates">Rule 1</span><h4>Literal, where the requester cast the net</h4><p>When a request covers the communications of named people or a named group, every such communication is in. That includes mail the requester plainly was not after, such as a mass mailing where one member is among thirty recipients.</p><q>The problem is the requester cast too wide of a net, but our responsibility is to use that net.</q></div>
+    <div class="rule-card"><span class="bates">Rule 2</span><h4>Intent, where a keyword is ambiguous</h4><p>A term the request uses in one sense does not bring in email that uses it in another. In 24-409, "RDF" is the Regional Decarbonization Framework, so refuse-derived fuel is out. The CPRA allows reasonable interpretation and puts a duty on the agency to help the requester clarify.</p><q>I think its borderline bad faith to turn "RDF" into a keyword search and to give a requestor documents they didn't want, without at least clarifying with the requestor first.</q></div>
+  </div>
+  <div class="prose"><p>One exception sits under Rule 1. A purely personal message is not a public record at all (<i>City of San Jose v. Superior Court</i> (2017) 2 Cal.5th 608), so a fishing trip between two members stays out.</p></div>
+  <h3>The docket</h3>
+  <ul class="docket">
+    <li><span class="d">25-3152 · six synthetic<br>Oct 31</span><span>Purely personal mail to or between members: a fishing trip, a brunch reservation, an SDG&amp;E notice about the chair's own home, a pet-sitting inquiry, a cancelled backyard BBQ, a cookie-sale form.</span><span class="v"><i class="sw-neg"></i>Not responsive</span></li>
+    <li><span class="d">25-3152 · three synthetic<br>Nov 8</span><span>The chair arranging a TV interview and signing as ACPG Chair. Rooftop-lease mail from an applicant before the group. The chair warning a County planner that his ACPG account was hacked.</span><span class="v"><i class="sw-pos"></i>Responsive · Rule 1</span></li>
+    <li><span class="d">25-3152 · 19 emails<br>Nov 8</span><span>One member among 15 to 32 recipients of a mass mailing: planning-association notices, SANDAG meeting reports, County traffic-committee agendas. 15 are in the County's own production.</span><span class="v"><i class="sw-pos"></i>Responsive · Rule 1</span></li>
+    <li><span class="d">25-3152 · one real<br>Oct 28</span><span>The chair was bcc'd, and only the Delivered-To header shows it. The parser had dropped that header. Fixed, which changed 15 prompts.</span><span class="v"><i class="sw-pos"></i>Responsive</span></li>
+    <li><span class="d">24-409 · two synthetic<br>Nov 8</span><span>A Geosyntec address on the thread and no listed term: a parking-lot closure, a food-bank volunteer shift. Item 4 of the request covers anything sent to or from anyone at Geosyntec.</span><span class="v"><i class="sw-pos"></i>Responsive · Rule 1</span></li>
+    <li><span class="d">24-409 · one synthetic<br>Oct 31</span><span>An out-of-office reply on a responsive thread. Debatable.</span><span class="v"><i class="sw-pos"></i>Responsive</span></li>
+    <li><span class="d">24-409 · four synthetic<br>Nov 11</span><span>"RDF" meaning refuse-derived fuel, twice. "GPS" meaning temperature sensors and storm-drain coordinates. The request means the Regional Decarbonization Framework and UCSD's School of Global Policy &amp; Strategy.</span><span class="v"><i class="sw-neg"></i>Not responsive · Rule 2</span></li>
+    <li><span class="d">Both · two synthetic<br>Oct 31</span><span>The responsive mention sits past the 8,000-character cap on the email body, so no model can see it. The 24-409 one is kept to count a miss the system would really make. In the 25-3152 one the chair is still visible among 27 recipients, so it stays as a test of whether one member among many is enough.</span><span class="v"><i class="sw-pos"></i>Responsive, kept</span></li>
+  </ul>
+  <p class="note">Relabeling an email never changes its scores. The scores come from the models. A label only changes how a score is graded.</p>
+</section>
+
+<section id="s07" data-t="The contenders">
+  <div class="sec-head"><span class="bates">EXP-0007</span><h2>Thirteen configurations, the same 496 pairs</h2></div>
+  <div class="prose"><p>Names in the charts follow one pattern. The number is the model's size in billions of parameters. The suffix is how the answer was taken: <span class="mono">lp</span> for the yes/no score from section 2, <span class="mono">json</span> and <span class="mono">jsonR</span> for generated answers.</p></div>
+  <div class="cards c3">
+    <div class="card"><span class="k">3 configurations · local</span><h4>Stock Qwen, yes/no score</h4><p><span class="mono">4b lp · 9b lp · 27b lp</span></p><p>qwen3.5:4b, qwen3.5:9b and qwen3.8:27b as downloaded, compressed to 4 bits per weight (Q4_K_M). The method under test.</p></div>
+    <div class="card"><span class="k">3 configurations · local</span><h4>Stock Qwen, JSON verdict</h4><p><span class="mono">4b json · 9b json · 27b json</span></p><p>The 2025 approach. The model writes a verdict, a confidence and its reasoning. The score is the confidence if it said responsive, and one minus the confidence if not.</p></div>
+    <div class="card"><span class="k">3 configurations · local</span><h4>Stock Qwen, reasoning first</h4><p><span class="mono">4b jsonR · 9b jsonR · 27b jsonR</span></p><p>The same JSON answer with the reasoning written before the verdict, enforced by a schema. Tests whether thinking first helps.</p></div>
+    <div class="card"><span class="k">3 configurations · local</span><h4>d3 decision models</h4><p><span class="mono">d3-4b · d3-9b · d3-27b</span></p><p>The vLLM Semantic Router decision models, built on the same three Qwen bases, at 8 bits per weight. They read the whole prompt at once and return P(yes) directly.</p></div>
+    <div class="card"><span class="k">1 configuration · hosted</span><h4>Jev</h4><p><span class="mono">Jev</span></p><p>TypeSafe's decision model (jev-1.14.0) through its API. Scores come back with two decimals, and its time includes the network. Using it sends the records to a third party.</p></div>
+    <div class="card"><span class="k">The machine</span><h4>One Strix Halo desktop</h4><p>128 GB of unified memory and a Radeon 8060S integrated GPU. Ollama 0.40.13 on ROCm 7.2. Context of 8,192 tokens, thinking off, temperature 0, one email at a time.</p></div>
+  </div>
+  <div class="quote"><span class="who">System prompt for the stock models</span>You are a public records analyst for a California county. You will be shown a California Public Records Act (CPRA) request and one email from the county's email system. Decide whether the email is responsive to the request, meaning it is a record the request is asking for. <mark>If the request covers communications sent or received by named people or groups, an email to or from one of them is responsive whatever its subject, unless it is purely personal and has nothing to do with public business.</mark> Do not consider whether the email might be exempt from disclosure; that is a separate question. Answer with a single word: yes or no.</div>
+  <p class="cap">The highlighted sentence was added on October 31, and the runs were repeated with it by November 1 (section 12). The request and the email follow in the user message. The model sees the headers, the attachment names and up to 8,000 characters of the body. It never sees attachment contents.</p>
+</section>
+
+<section id="s08" data-t="A fault in the machine">
+  <div class="sec-head"><span class="bates">EXP-0008</span><h2>Detour: the GPU backend was corrupting the small models</h2></div>
+  <div class="prose">
+    <p>The first golden-set runs of the 4B and 9B models, on October 5, looked plausible. The JSON reasoning gave the problem away. Now and then the model's explanation described an email it had scored one to four rows earlier.</p>
+  </div>
+  <div class="cards">
+    <div class="card"><span class="k">Fault 1</span><h4>State leaked between requests</h4><p>After the model scored email A, it was asked to list email B's attachments. It answered with A's file name. The 9B scored one email 0.19 with nothing before it and 0.90 right after another email.</p></div>
+    <div class="card"><span class="k">Fault 2</span><h4>Long prompts arrived garbled</h4><p>Reloading the model before every call stopped the leak and exposed a second fault. Prompts over 2,048 tokens were corrupted. In one run the 9B described 56 of 172 long prompts as garbled, for example as "a series of '!' characters".</p></div>
+  </div>
+  <div class="prose" style="margin-top:22px">
+    <p>Both symptoms matched open upstream reports for this model architecture on AMD's ROCm (ollama/ollama#18528, ggml-org/llama.cpp#29092). The workaround suggested there made things worse on this build: the 9B named Prague as the capital of France.</p>
+    <p>The fix was one setting, <span class="mono">num_batch=8192</span>, which processes the whole prompt in a single batch. With it, scores were identical on all 496 pairs with or without a reload, none of 2,980 JSON answers mentioned garbled input, and the results matched a CPU-only reference run.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">Ranking quality on the 249 roster prompts, under four backend settings</p>
+    <p class="fig-sub">AUROC for the yes/no score on the 25-3152 pairs with the member roster attached. Every one is over 2,048 tokens. October runs.</p>
+    <div class="rows" id="fault" style="--labw:11.5rem;--valw:3rem;--div:5"></div>
+    <figcaption><span class="fno">Fig. 8</span>The reloaded runs were first taken as the clean baseline. They were the worst of all, close to a coin flip. An early conclusion that a roster hurts small models came from these runs and was wrong.</figcaption>
+  </figure>
+  <div class="prose">
+    <ul class="tight">
+      <li><b>The canary did not catch it.</b> Its reference score was taken in the same faulty state. What caught it was reading the model's reasoning, then a cross-request probe, a reloaded-against-cached check and a CPU reference.</li>
+      <li><b>The 27B model was never affected.</b></li>
+      <li><b>Earlier results were marked.</b> The sweep and first-run Qwen numbers in section 4 came from the faulty state and carry correction notes.</li>
+      <li><b>The fault is gone on Ollama 0.40.13</b> (rechecked November 4), so the final 4B and 9B yes/no runs use the default batch again, which is faster. Their JSON runs stayed on the large batch.</li>
+    </ul>
+    <p>The lesson for any local deployment is that the backend needs its own validation. A model that is quietly reading a corrupted prompt still returns a confident number.</p>
+  </div>
+</section>
+
+<div class="part-rule"><span>Part IV</span><span>Results</span></div>
+
+<section id="s09" data-t="The results">
+  <div class="sec-head"><span class="bates">EXP-0009</span><h2>Results: the two largest local models lead, and the yes/no score beats a written answer</h2></div>
+  <div class="prose"><p>Two numbers carry most of this section. It helps to pin them down first.</p></div>
+  <div class="cards">
+    <div class="card"><span class="k">How to read it</span><h4>AUROC measures ranking</h4><p>Pick one responsive email and one non-responsive email at random. AUROC is the chance the model scores the responsive one higher. 1.0 is a perfect ranking and 0.5 is a coin flip. It needs no cutoff.</p></div>
+    <div class="card"><span class="k">How to read it</span><h4>"Cleared at 98% recall" measures the payoff</h4><p>Set the cutoff as high as it can go while 98% of the responsive emails still score above it. Then count the share of non-responsive emails below it. Those never reach a reviewer. On 289 responsive emails, 98% allows five misses.</p></div>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">All 13 configurations on the 496 pairs</p>
+    <p class="fig-sub">Dots are the measured values. Lines are 95% bootstrap intervals. The cutoff for the clearance panel is chosen with the labels in hand.</p>
+    <div class="cols">
+      <div><p class="subh">Ranking quality (AUROC)</p><div class="rows" id="forest-auc" style="--labw:5.4rem;--valw:2.9rem;--div:5"></div></div>
+      <div><p class="subh">Non-responsive cleared at 98% recall</p><div class="rows" id="forest-elim" style="--labw:5.4rem;--valw:2.6rem;--div:4"></div></div>
+    </div>
+    <figcaption><span class="fno">Fig. 9</span>The dashed marker in the clearance panel is the experiment's target: more than half cleared. All seven score models pass it in-sample. Three JSON runs clear nothing. Each gave some responsive emails a score of exactly 0, so no cutoff above zero keeps 98% of them.</figcaption>
+  </figure>
+  <div class="prose">
+    <ul class="tight">
+      <li><b>The two 27B models lead and can't be told apart.</b> The d3-27b is ahead of the stock 27B by 0.006 AUROC and 5.3 points of clearance, and both intervals include zero.</li>
+      <li><b>Clearance is noisier than ranking.</b> With five misses allowed, a few borderline emails move it by several points. The jump from the 4B to either 27B model is solid. The step from 4B to 9B is not established.</li>
+      <li><b>Jev sits with the small local models on quality</b> (AUROC 0.917, 64% cleared) and is far faster than anything local.</li>
+      <li><b>Real email against real email scores AUROC 0.982 to 1.000.</b> That says more about how easy the real non-responsive emails are than about the models. On the Alpine request alone, the 4B model clears only 23 of 60 real non-responsive emails at 98% recall. See section 14.</li>
+    </ul>
+  </div>
+
+  <h3>Explore the scores</h3>
+  <figure class="fig" id="explorer">
+    <p class="fig-title">Pick a model, move the cutoff, read what it gets wrong</p>
+    <p class="fig-sub">Drag on the chart or use the arrow keys on the handle. Click a dot or a list entry to read that email.</p>
+    <div class="ctl">
+      <div class="ctl-g"><span class="ctl-l">Yes/no score</span><div class="seg" id="ex-models"></div></div>
+      <div class="ctl-g"><span class="ctl-l">JSON verdict</span><div class="seg" id="ex-json"></div></div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-g"><span class="ctl-l">Request</span><div class="seg" id="ex-req"></div></div>
+      <div class="ctl-g"><span class="ctl-l">Score axis</span><div class="seg" id="ex-axis"></div></div>
+      <div class="ctl-g"><span class="ctl-l">Jump to</span><div class="seg"><button class="chip ghost" id="ex-98">98% recall</button><button class="chip ghost" id="ex-50">0.5</button></div></div>
+    </div>
+    <div class="legend"><span><i class="sw-pos"></i>Responsive</span><span><i class="sw-neg"></i>Not responsive</span><span>Ringed: responsive and screened out</span><span>Faded: non-responsive and cleared</span></div>
+    <div class="strip" id="ex-strip"></div>
+    <div class="readout r4" id="ex-read"></div>
+    <div class="split" style="margin-top:22px">
+      <div>
+        <p class="subh">Share of each kind that reaches a reviewer</p>
+        <div class="rows" id="ex-kinds" style="--labw:10.5rem;--valw:4.6rem"></div>
+        <div class="h-mail" id="ex-mail"><div class="mail-empty">Click a dot or a list entry to read the email.</div></div>
+      </div>
+      <div>
+        <p class="subh" id="ex-miss-h">Responsive emails screened out</p>
+        <ul class="mlist" id="ex-miss"></ul>
+        <p class="subh" style="margin-top:20px" id="ex-kept-h">Non-responsive emails still sent to review</p>
+        <ul class="mlist" id="ex-kept"></ul>
+      </div>
+    </div>
+    <figcaption><span class="fno">Fig. 10</span>The stretched axis spreads out the scores near 0 and 1, where most emails sit. "With roster" reruns the Alpine request with the list of planning-group members attached (section 12).</figcaption>
+  </figure>
+
+  <h3>Speed against payoff</h3>
+  <figure class="fig">
+    <p class="fig-title">Each step up in clearance costs time</p>
+    <p class="fig-sub">Median seconds per email (log scale) against non-responsive email cleared at 98% recall, in-sample. One email at a time on the desktop. Jev's time includes the network.</p>
+    <div id="scatter"></div>
+    <figcaption><span class="fno">Fig. 11</span>The line joins the configurations that nothing else beats on both speed and clearance: Jev, then the 9B score, the 27B score and the d3-27b. The JSON runs are slower and clear less at every size. The d3 models cost 1.6 to 1.7 times the machine time of the stock model of the same size, and 3.1 to 3.6 times with the roster attached.</figcaption>
+  </figure>
+</section>
+
+<section id="s10" data-t="JSON verdicts">
+  <div class="sec-head"><span class="bates">EXP-0010</span><h2>A written verdict is one decision. A score is a dial.</h2></div>
+  <div class="prose">
+    <p>The 2025 approach asked the model to write its confidence as a number. In practice the model has a few favorite numbers. Each JSON run used two to five distinct confidence values. The 27B wrote 0.95 on 266 emails, 1.0 on 213 and 0.98 on 15. Not one of the 2,972 JSON scores falls between 0.2 and 0.8.</p>
+    <p>So a JSON answer gives one operating point, the verdict itself, and no way to trade recall against workload. It is also confidently wrong: when the 9B said "not responsive" with confidence of 0.95 or higher, it was wrong 24% of the time.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">Same model, same emails, two ways of asking</p>
+    <p class="fig-sub">The 27B model on all 496 pairs. Top: the first-token score. Bottom: the confidence it wrote in JSON.</p>
+    <div class="legend"><span><i class="sw-pos"></i>Responsive</span><span><i class="sw-neg"></i>Not responsive</span></div>
+    <p class="subh">27b lp · first-token score</p>
+    <div class="strip" id="js-strip-lp"></div>
+    <p class="subh" style="margin-top:18px">27b json · written confidence</p>
+    <div class="strip" id="js-strip-js"></div>
+    <figcaption><span class="fno">Fig. 12</span>Both strips use the stretched axis. The written confidences are a handful of round numbers piled at the two ends. Any cutoff between the piles gives the same result, and nothing can be done about the mistakes inside each pile.</figcaption>
+  </figure>
+  <div class="prose"><p>A fair comparison holds the workload fixed. Set the score's cutoff so it flags exactly as many emails as the JSON verdict did, then compare who was right where the two disagree.</p></div>
+  <figure class="fig">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>JSON run</th><th class="n">JSON verdict:<br>recall / cleared</th><th class="n">Score at the same<br>number flagged</th><th class="n">Disagreements<br>score got right</th><th class="n">JSON got right</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">4b json</td><td class="n">89.6% / 76.8%</td><td class="n">91.7% / 79.7%</td><td class="n">14</td><td class="n">2</td></tr>
+        <tr><td class="mono">4b jsonR</td><td class="n">86.9% / 81.6%</td><td class="n">87.2% / 82.1%</td><td class="n">25</td><td class="n">23</td></tr>
+        <tr><td class="mono">9b json</td><td class="n">80.3% / 87.0%</td><td class="n">81.7% / 88.9%</td><td class="n">15</td><td class="n">7</td></tr>
+        <tr><td class="mono">9b jsonR</td><td class="n">92.7% / 78.7%</td><td class="n">94.4% / 81.2%</td><td class="n">26</td><td class="n">16</td></tr>
+        <tr><td class="mono">27b json</td><td class="n">95.5% / 88.3%</td><td class="n">95.5% / 88.3%</td><td class="n">5</td><td class="n">5</td></tr>
+        <tr><td class="mono">27b jsonR</td><td class="n">94.8% / 83.5%</td><td class="n">96.9% / 86.4%</td><td class="n">20</td><td class="n">8</td></tr>
+        <tr class="em"><td>Total</td><td class="n"></td><td class="n"></td><td class="n">105</td><td class="n">61</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><span class="fno">Fig. 13</span>At the same workload the score is at least as good in every run, and it costs a fraction of the time. Writing the JSON takes a median of 1.8 to 4.0 seconds on top of reading the prompt. A whole JSON run takes 7.9 to 20.7 hours per 10,000 emails.</figcaption>
+  </figure>
+  <h3>Does reasoning first help?</h3>
+  <div class="prose"><p>One fair objection to the JSON test is that the model gave its verdict before it reasoned. So the runs were repeated with the reasoning written first.</p></div>
+  <figure class="fig">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Model</th><th class="n">AUROC<br>verdict first → reasoning first</th><th class="n">Recall</th><th class="n">Cleared</th><th class="n">Where the two disagree,<br>reasoning first was right</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">4b</td><td class="n">0.831 → 0.873</td><td class="n">90% → 87%</td><td class="n">77% → 82%</td><td class="n">24 of 46</td></tr>
+        <tr><td class="mono">9b</td><td class="n">0.869 → 0.888</td><td class="n">80% → 93%</td><td class="n">87% → 79%</td><td class="n">44 of 69</td></tr>
+        <tr><td class="mono">27b</td><td class="n">0.950 → 0.954</td><td class="n">96% → 95%</td><td class="n">88% → 83%</td><td class="n">7 of 26</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><span class="fno">Fig. 14</span>Reasoning first changes where the small models draw the line. It does not help any model sort the emails better. Where the 27B's two verdicts differ, the reasoning-first one is wrong 19 times out of 26. It takes 3 to 19% longer, and it never catches the first-token score from the same model.</figcaption>
+  </figure>
+</section>
+
+<section id="s11" data-t="Where it breaks">
+  <div class="sec-head"><span class="bates">EXP-0011</span><h2>Where it breaks: near misses, and dates most of all</h2></div>
+  <div class="prose"><p>The pooled numbers hide a split. Every model clears the easy non-responsive emails. The cost sits almost entirely in the synthetic near misses.</p></div>
+  <figure class="fig">
+    <p class="fig-title">Share of each kind that passes the screen</p>
+    <p class="fig-sub">At each model's own 98% recall cutoff. For responsive kinds, higher is better. For non-responsive kinds, lower is better.</p>
+    <div class="tbl-wrap"><table class="heat" id="kind-heat"></table></div>
+    <figcaption><span class="fno">Fig. 15</span>The two 27B models clear every real non-responsive email, and 54% and 41% of the hard negatives still get through. Real negatives make up 70 to 90% of what each model clears, against 58% of all negatives.</figcaption>
+  </figure>
+  <figure class="fig">
+    <p class="fig-title">Hard negatives that slip through, by recipe</p>
+    <p class="fig-sub">Share of each recipe's emails still flagged at the model's 98% recall cutoff. Darker is worse.</p>
+    <div class="tbl-wrap"><table class="heat" id="recipe-heat"></table></div>
+    <figcaption><span class="fno">Fig. 16</span>53 hard negatives are kept by five or more of the seven score models. No real non-responsive email is kept by more than three. All 53 labels held up on a full re-read.</figcaption>
+  </figure>
+  <div class="cards c3">
+    <div class="card"><span class="k">Size effect</span><h4>Small models don't check the date</h4><p>An on-topic email dated outside the window passes the 4B, the 9B and Jev 85 to 90% of the time at a cutoff of 0.5. The two 27B models pass 15%. This is the clearest thing extra size buys.</p></div>
+    <div class="card"><span class="k">Good news</span><h4>Exempt is not mistaken for non-responsive</h4><p>At the default cutoff the yes/no runs catch 98 to 100% of the privileged and personnel emails, against 90 to 93% of ordinary real ones. The instruction to ignore exemption holds.</p></div>
+    <div class="card"><span class="k">Unsolved</span><h4>Purely personal mail between named people</h4><p>Six emails in the set are personal mail to or between planning-group members. No model reliably leaves them out. Section 12 covers the attempt to fix that.</p></div>
+  </div>
+</section>
+
+<section id="s12" data-t="Who is a member?">
+  <div class="sec-head"><span class="bates">EXP-0012</span><h2>The Alpine request asks about people the model has never heard of</h2></div>
+  <div class="prose">
+    <p>Request 25-3152 covers every communication of "any member" of the Alpine Community Planning Group. It does not name them. In October the 27B's lowest-scoring responsive emails were almost all of this kind: a meeting agenda, a district attorney's event invitation, a password reset. They are responsive only because of who sent or received them, and the model was reading the request as if it were about a subject.</p>
+    <p>Two fixes were tested. <b>Prompt 2</b> adds the sentence highlighted in section 7, which tells the model that mail to or from a named person or group is responsive whatever its subject. <b>The roster</b> appends the list of members, their roles and their email addresses to the request.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">What the roster does on the Alpine request</p>
+    <p class="fig-sub">The same 249 pairs, without the roster (hollow) and with it (filled). Cutoffs chosen in-sample.</p>
+    <div class="legend"><span><i style="background:var(--surface);box-shadow:inset 0 0 0 2px var(--ink)"></i>Request only</span><span><i style="background:var(--ink)"></i>Request plus roster</span></div>
+    <div class="cols">
+      <div><p class="subh">Non-responsive cleared at 98% recall</p><div class="rows" id="roster-elim" style="--labw:4.6rem;--valw:5.4rem;--div:4"></div></div>
+      <div><p class="subh">Ranking quality (AUROC)</p><div class="rows" id="roster-auc" style="--labw:4.6rem;--valw:6.6rem;--div:4"></div></div>
+    </div>
+    <figcaption><span class="fno">Fig. 17</span>The roster raises AUROC for every model. With it, the d3-27b puts every responsive email above every non-responsive one. That is one request, in-sample, and the roster was compiled partly from that request's own production.</figcaption>
+  </figure>
+  <div class="cards c3">
+    <div class="card"><span class="k">Prompt 2 alone</span><h4>The small models just say yes more</h4><p>Without a roster the new sentence barely changes the 27B's ranking (AUROC 0.975 to 0.977). The 4B and 9B treat it as a push toward yes on both requests. Their recall at 0.5 rises from 80% to 93–95% and they clear 5 to 11 points less.</p></div>
+    <div class="card"><span class="k">Prompt 2 plus roster</span><h4>The rule works once the model knows the names</h4><p>With the roster attached, prompt 2 lifts the 27B's AUROC on the Alpine request from 0.978 to 0.994 and its clearance from 82% to 93%. The emails that scored near zero move up.</p></div>
+    <div class="card"><span class="k">The exception</span><h4>"Unless it is purely personal" does nothing</h4><p>Of the six personal emails, the 27B passes five at its 98% cutoff under either prompt, with or without the roster. The models apply the rule and skip the exception. Those stay with human review.</p></div>
+  </div>
+  <div class="prose" style="margin-top:22px">
+    <p>The roster has two costs. It adds 1,330 tokens to every prompt. The stock models read it once and reuse it, so their time per email does not rise. The d3 models reread it on every call, which adds 0.8, 1.2 and 3.7 seconds per email at the three sizes. They ran at the large batch setting, where the small stock models also stop reusing it, so the runs show that the d3 models reread the roster and do not show why. Jev's time rises by 9 milliseconds.</p>
+    <p>It also changes the scores. With the roster attached, the d3-27b's 98% cutoff on the same emails moves from 0.54 to 0.91. A prompt with a roster is a new configuration, and it needs its own cutoff. The next section is about why that matters.</p>
+  </div>
+</section>
+
+<div class="part-rule"><span>Part V</span><span>How much to trust it</span></div>
+
+<section id="s13" data-t="The cutoff problem">
+  <div class="sec-head"><span class="bates">EXP-0013</span><h2>The cutoff problem: every number so far was set with the answers in hand</h2></div>
+  <div class="prose">
+    <p>Each "cleared at 98% recall" figure above used a cutoff picked after looking at the labels. A real deployment has to pick the cutoff first, on a request nobody has labeled. This is the weakest part of the result, and the part a public claim has to be most careful about.</p>
+    <p>The two requests do not agree on where the cutoff belongs.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">The 98% recall cutoff, fitted on each request separately</p>
+    <p class="fig-sub">Dots are the fitted cutoffs. Lines are 95% bootstrap intervals. Score axis from 0 to 1.</p>
+    <div class="rows" id="thr-int" style="--labw:9.2rem;--valw:3.2rem;--div:5"></div>
+    <figcaption><span class="fno">Fig. 18</span>For these three models the intervals for the two requests don't overlap. The Alpine request needs a much lower cutoff, and adding the roster moves it again. For the other four score models the intervals overlap.</figcaption>
+  </figure>
+  <figure class="fig" id="transfer">
+    <p class="fig-title">Fit the cutoff on one request, then use it on the other</p>
+    <p class="fig-sub">Both strips share one cutoff. Fit it on either request and read the damage on the other, or drag it yourself.</p>
+    <div class="ctl">
+      <div class="ctl-g"><span class="ctl-l">Scored by</span><div class="seg" id="tr-models"></div></div>
+      <div class="ctl-g"><span class="ctl-l">Fit 98% recall on</span><div class="seg"><button class="chip ghost" id="tr-fitA">24-409</button><button class="chip ghost" id="tr-fitB">25-3152</button></div></div>
+    </div>
+    <div class="legend"><span><i class="sw-pos"></i>Responsive</span><span><i class="sw-neg"></i>Not responsive</span><span>Ringed: responsive and screened out</span></div>
+    <p class="subh" id="tr-hA">24-409 · the water report · topical</p>
+    <div class="strip" id="tr-stripA"></div>
+    <p class="subh" style="margin-top:14px" id="tr-hB">25-3152 · Alpine planning group · by correspondent</p>
+    <div class="strip" id="tr-stripB"></div>
+    <div class="readout r4" id="tr-read"></div>
+    <figcaption><span class="fno">Fig. 19</span>A cutoff fitted on the water-report request misses 31 of 143 responsive Alpine emails for the d3-27b, 28 for Jev and 14 for the stock 27B. Going the other way keeps recall and clears less. A cutoff only fails in the direction where the new request needs a lower one, and nothing tells you in advance which direction that is.</figcaption>
+  </figure>
+  <div class="cards c3">
+    <div class="card"><span class="k">The default</span><h4>0.5 holds for one model only</h4><p>At a plain cutoff of 0.5 the d3-27b missed 0 of 146 and 1 of 143. Every other score model missed at least five responsive emails on one of the requests. That one success was noticed after the fact.</p></div>
+    <div class="card"><span class="k">A small labeled sample</span><h4>Fifty emails can't certify 98%</h4><p>Set the cutoff at the lowest-scoring responsive email in a random sample of 50. It reaches 98% recall on the rest about half the time on this set, and about one time in five when 20% of the pile is responsive. Ninety percent assurance needs about 114 responsive emails in the sample.</p></div>
+    <div class="card"><span class="k">A roster</span><h4>Changing the prompt changes the cutoff</h4><p>A cutoff fitted on the Alpine request with the roster attached, then used on the water-report request, missed 84 of 146 responsive emails for the d3-9b and 76 for the d3-4b.</p></div>
+  </div>
+  <h3>The best-supported policy so far</h3>
+  <div class="prose"><p>The findings mark this part low confidence. The best-supported rule is a fixed cutoff for each model and each prompt. Fit it on every labeled request available, then step it down one notch for margin. On each new request, check a random sample of what was screened out. On these two requests that rule gives the following.</p></div>
+  <figure class="fig">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Model</th><th class="n">Rule's cutoff</th><th class="n">24-409<br>missed · cleared</th><th class="n">25-3152<br>missed · cleared</th><th class="n">25-3152 with roster<br>missed · cleared</th></tr></thead>
+      <tbody>
+        <tr class="em"><td class="mono">d3-27b</td><td class="n">0.4</td><td class="n">0 of 146 · 69%</td><td class="n">0 of 143 · 81%</td><td class="n">0 of 143 · 92%</td></tr>
+        <tr><td class="mono">27b lp</td><td class="n">0.02</td><td class="n">0 of 146 · 68%</td><td class="n">1 of 143 · 67%</td><td class="n">0 of 143 · 87%</td></tr>
+        <tr><td class="mono">9b lp</td><td class="n">0.1</td><td class="n">0 of 146 · 60%</td><td class="n">0 of 143 · 30%</td><td class="n">0 of 143 · 25%</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><span class="fno">Fig. 20</span>The rule was fitted on these same two requests, so this is not an out-of-sample test. Fitted on the water-report request alone it would have picked 0.7 for the d3-27b and missed 12 of 143 on the Alpine request.</figcaption>
+  </figure>
+  <p class="note">These data can't show any cutoff policy to be safe on a third request. Before first use, an agency would need to label at least one of its own requests of each type and check the cutoff against it. The sample check only catches large failures. With 20% of the hits responsive, a sample of 50 catches a cutoff that misses 10% of responsive emails with probability 0.64, and one that misses 5% with probability 0.39. A sample of 200 raises these to 0.98 and 0.87.</p>
+</section>
+
+<section id="s14" data-t="How hard is the test?">
+  <div class="sec-head"><span class="bates">EXP-0014</span><h2>How hard is the test? It depends which non-responsive emails you count</h2></div>
+  <div class="prose">
+    <p>The headline mixes two very different kinds of non-responsive email. The 120 real ones are other requests' records, and 118 of them fall outside the date window of the request they are paired with. A keyword search with a date filter would never have returned them. The 87 hard negatives are synthetic and built to be near misses.</p>
+    <p>Splitting the test three ways shows how much each kind carries the result.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">Non-responsive cleared at 98% recall, on three versions of the test</p>
+    <p class="fig-sub">Cutoff chosen within each subset. Seven score models. The third panel sets the real responsive emails against the 67 near misses dated inside the request's window.</p>
+    <div class="cols c3">
+      <div><p class="subh">Everything (the headline)</p><div class="rows" id="val-all" style="--labw:3.8rem;--valw:2.6rem;--div:4"></div></div>
+      <div><p class="subh">Real against real</p><div class="rows" id="val-real" style="--labw:3.8rem;--valw:2.6rem;--div:4"></div></div>
+      <div><p class="subh">67 in-window near misses</p><div class="rows" id="val-hard" style="--labw:3.8rem;--valw:2.6rem;--div:4"></div></div>
+    </div>
+    <figcaption><span class="fno">Fig. 21</span>Against near misses inside the window, the best models clear 43 to 48% and no model reaches half. The headline is an optimistic bound. The third panel is a conservative stand-in, though not a floor. A real date-filtered search result lies somewhere between, and these data can't say where.</figcaption>
+  </figure>
+  <div class="prose">
+    <ul class="tight">
+      <li><b>The synthetic responsive emails behave like real ones.</b> A synthetic positive outscores a real positive about half the time (0.46 to 0.56).</li>
+      <li><b>The hard negatives carry the difficulty.</b> A hard negative outscores a real negative 87 to 99% of the time.</li>
+      <li><b>The near misses read as real, mostly.</b> In a spot read of 30 emails by one reader on the October 31 labels, 9 of 10 hard negatives and 7 of 10 synthetic positives passed as real. Two of those hard negatives have since been relabeled. They are minimal edits of real emails, which makes them close pairs by construction.</li>
+      <li><b>The checks are not independent of the generator.</b> Opus wrote the synthetic emails and the first labels, and AI analysts from the same family did the realism reads.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="s15" data-t="What it would save">
+  <div class="sec-head"><span class="bates">EXP-0015</span><h2>What it would save, as a scenario</h2></div>
+  <div class="prose">
+    <p>This is an estimate built on assumptions, and none of it was measured. A keyword search returns 10,000 emails. 20% are responsive. Half of the rest are as easy as the real negatives here and half are as hard as the synthetic ones. A reviewer takes 30 seconds per flagged email. The machine scores one email at a time.</p>
+  </div>
+  <figure class="fig">
+    <p class="fig-title">Hours to get through 10,000 search hits</p>
+    <p class="fig-sub">Machine time to score everything, plus reviewer time on what the model flags at its in-sample 98% cutoff.</p>
+    <div class="legend"><span><i style="background:var(--ink);border-radius:2px"></i>Reviewer hours</span><span><i style="background:var(--rule2);border-radius:2px"></i>Machine hours (unattended)</span></div>
+    <div class="rows" id="work" style="--labw:6.6rem;--valw:9.6rem;--div:5"></div>
+    <figcaption><span class="fno">Fig. 22</span>Reading everything takes 83.3 hours. Reviewer time is the larger part for every model, so accuracy decides the paid hours and speed only decides whether a batch finishes overnight. These hours leave out the sample check and any quality-control read of what was screened out.</figcaption>
+  </figure>
+  <figure class="fig">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Configuration and cutoff</th><th class="n">Machine h</th><th class="n">Flagged per 10,000</th><th class="n">Responsive missed<br>per 10,000 [95%]</th><th class="n">Reviewer h</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">d3-27b</span>, cutoff 0.4</td><td class="n">14.7</td><td class="n">4,345 – 7,254</td><td class="n">0 [0–26]</td><td class="n">36.2 – 60.4</td></tr>
+        <tr><td><span class="mono">d3-27b</span>, cutoff 0.5</td><td class="n">14.7</td><td class="n">3,878 – 6,530</td><td class="n">7 [1–39]</td><td class="n">32.3 – 54.4</td></tr>
+        <tr><td><span class="mono">27b lp</span>, cutoff 0.02</td><td class="n">8.9</td><td class="n">5,061 – 8,202</td><td class="n">7 [1–39]</td><td class="n">42.2 – 68.4</td></tr>
+        <tr><td>No screen, read everything</td><td class="n">0</td><td class="n">10,000</td><td class="n">0</td><td class="n">83.3</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption><span class="fno">Fig. 23</span>The same scenario at the fixed cutoffs from section 13. Each range runs from the half-and-half mix to the case where every non-responsive email is a near miss inside the date window. A zero means none was missed among 289 responsive emails. It does not mean none will be.</figcaption>
+  </figure>
+  <div class="cards">
+    <div class="card"><span class="k">At a plain 0.5</span><h4>Most models would miss over a hundred</h4><p>At a cutoff of 0.5 the same scenario loses 111 to 145 responsive emails per 10,000 for Jev and the three stock models. The d3-27b loses 7.</p></div>
+    <div class="card"><span class="k">Calibration</span><h4>The scores rank. They are not probabilities.</h4><p>No model's 0.7 means "70% likely responsive". The test set is 58% responsive by design. On a request where 10% is responsive, a score that means 0.5 here would mean about 0.07. A cutoff has to be set by policy.</p></div>
+  </div>
+</section>
+
+<div class="part-rule"><span>Part VI</span><span>Where it stands</span></div>
+
+<section id="s16" data-t="Scorecard">
+  <div class="sec-head"><span class="bates">EXP-0016</span><h2>Scorecard against the original hypotheses</h2></div>
+  <div class="verdicts">
+    <div class="verdict"><div class="h">H1 · Speed</div><h4>The yes/no score is much faster than a JSON answer</h4><span class="stamp">Supported</span><p>2.6 to 6.2 times faster, and never the hoped-for ten times. Writing the JSON alone takes longer than the entire yes/no call at every model size.</p></div>
+    <div class="verdict"><div class="h">H2 · Screening</div><h4>Keep 98% of responsive email and clear more than half of the rest</h4><span class="stamp">Met in-sample only</span><p>All seven score models clear 53 to 83% with the cutoff fitted to the answers. It is not shown for a cutoff set in advance. Against near misses inside the date window no model reaches half (16 to 48%).</p></div>
+    <div class="verdict"><div class="h">H3 · Trustworthy scores</div><h4>A higher score means a more likely match</h4><span class="stamp">Partly</span><p>Broadly true as a ranking. No score is a calibrated probability, and what a score means would shift on a request with fewer responsive emails.</p></div>
+  </div>
+  <p class="cap">Three more hypotheses were set aside. H4, a reranker baseline, and H5, the effect of compression level, were never run. H6, other hardware, was checked once on the laptop and dropped on November 4.</p>
+</section>
+
+<section id="s17" data-t="Caveats and open work">
+  <div class="sec-head"><span class="bates">EXP-0017</span><h2>What this does not show</h2></div>
+  <div class="cols">
+    <div class="prose">
+      <h3 style="margin-top:0">Caveats</h3>
+      <ul class="tight">
+        <li><b>Two requests from one county,</b> one of each type. Request type can't be separated from the particular request.</li>
+        <li><b>Every clearance figure is in-sample.</b> Cutoffs set in advance did worse.</li>
+        <li><b>The real non-responsive emails are not search hits.</b> The project has no real near misses from inside a request's window.</li>
+        <li><b>One generator wrote every synthetic email,</b> and the checks on them were not independent of it.</li>
+        <li><b>One adjudicator.</b> The scope calls are one lawyer's reading. Under a narrower reading of "one member among many", the cutoffs would move, and the d3-27b's lead on the Alpine request with the roster would go from +6.6 points to −0.8 (interval −12.0 to +5.6).</li>
+        <li><b>One run per configuration.</b> The 4B's clearance was 53% in one run and 48% in another with the same AUROC.</li>
+<li><b>Backend noise is not in the intervals.</b> The bootstrap resamples emails from one run of each model. Several significance results sit between 0.03 and 0.09, close enough to move under a reseed.</li>
+        <li><b>Prompt 2 was written after reading this set's misses,</b> so its gains are in-sample.</li>
+        <li><b>Small counts.</b> 146 and 143 responsive emails per request, so 98% allows two misses on each.</li>
+        <li><b>Attachments are invisible.</b> The models see file names and never the contents.</li>
+        <li><b>The d3 comparison is confounded.</b> The d3 and stock packages differ in compression level, serving runner, batch setting and prompt delivery all at once. A gap between them is not proof of better training.</li>
+        <li><b>Jev's data terms were never reviewed.</b> The test used already-public records and synthetic edits. Sending live search results to any outside service is the problem a local model avoids.</li>
+        <li><b>One machine, one email at a time.</b> Parallel scoring and other hardware weren't measured.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <h3 style="margin-top:0">Open work</h3>
+      <ul class="tight">
+        <li><b>A third and a fourth labeled request,</b> one of each type, to test the fixed-cutoff policy out of sample.</li>
+        <li><b>A labeled sample of a real keyword-search result.</b> It would give the true share of responsive email, the real mix of easy and hard negatives, and real near misses.</li>
+        <li><b>A blind second reader</b> on a sample of the labels.</li>
+        <li><b>Untangling the d3 differences:</b> a d3 run at the default batch, a stock 27B at 8 bits, and an uncached stock 27B run.</li>
+        <li><b>Repeat runs</b> of Jev and the d3 models to measure run-to-run noise.</li>
+        <li><b>A design for the sample check</b> on each new request.</li>
+        <li><b>A narrower named-correspondent rule,</b> tested on a request the prompt has never seen.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="s18" data-t="Timeline">
+  <div class="sec-head"><span class="bates">EXP-0018</span><h2>Seven weeks, in order</h2></div>
+  <ol class="tl">
+    <li class="key"><time>Sept 22</time>Spec written. A first spike confirms the mechanism. 2,462 emails from four requests are collected, and the 4B model scores all 9,848 pairs.</li>
+    <li><time>Sept 23</time>Guards added after Gemma starts returning garbage: a canary pair, automatic reloads.</li>
+    <li class="key"><time>Sept 25</time>Five-model sweep. JSON mode added for comparison. The golden set is designed, the roster compiled, Opus writes pre-labels and 230 synthetic emails.</li>
+    <li><time>Oct 1</time>CPU-only laptop run: same ranking, 13 times slower. The adjudication page is published.</li>
+    <li><time>Oct 2</time>The 27B model's sweep run is added.</li>
+    <li class="key"><time>Oct 5</time>129 adjudications applied. First golden-set runs. Jev planned.</li>
+    <li class="key"><time>Oct 6 – 7</time>The backend fault is found and fixed. Clean 4B and 9B reruns. Reasoning-first JSON added.</li>
+    <li><time>Oct 28 – 31</time>Labels re-checked against the models' own reasoning. The dropped Delivered-To header is found.</li>
+    <li class="key"><time>Oct 31 – Nov 1</time>Prompt 2, with the named-correspondent rule, and a full rerun.</li>
+    <li><time>Nov 4</time>The backend fault is confirmed gone on the newer Ollama. Laptop runs dropped.</li>
+    <li class="key"><time>Nov 5</time>Jev and the three d3 decision models scored on the same pairs.</li>
+<li><time>Nov 6</time>Five-branch analysis of cutoffs, workload, misses, validity and comparisons.</li>
+    <li class="key"><time>Nov 8 – 11</time>Your final label decisions. Analysis rerun and findings refreshed on the final labels.</li>
+  </ol>
+</section>
+
+<section id="s19" data-t="Glossary">
+  <div class="sec-head"><span class="bates">EXP-0019</span><h2>Glossary</h2></div>
+  <dl class="gloss">
+    <div><dt>Responsive</dt><dd>The email is a record the request asks for. It says nothing about whether the email can be withheld.</dd></div>
+    <div><dt>Token</dt><dd>The unit a language model reads and writes: a word or a piece of one.</dd></div>
+    <div><dt>Logprob</dt><dd>The logarithm of the probability the model gives a token. The score here comes from the logprobs of "yes" and "no" at the first step of the answer.</dd></div>
+    <div><dt>Score</dt><dd>P(yes) divided by P(yes) plus P(no). It runs from 0 to 1.</dd></div>
+    <div><dt>Cutoff</dt><dd>The score below which an email is screened out. Also called a threshold.</dd></div>
+    <div><dt>Recall</dt><dd>The share of responsive emails that score at or above the cutoff and so reach a reviewer.</dd></div>
+    <div><dt>Cleared, or eliminated</dt><dd>The share of non-responsive emails that score below the cutoff. This is the work saved.</dd></div>
+    <div><dt>AUROC</dt><dd>The chance that a random responsive email outscores a random non-responsive one. 1.0 is perfect, 0.5 is chance.</dd></div>
+    <div><dt>In-sample</dt><dd>A cutoff chosen using the same labeled emails it is then graded on. It flatters the result.</dd></div>
+    <div><dt>Golden set</dt><dd>The 496 request and email pairs used for every result from section 5 on. Labels are Opus pre-labels, with the doubtful ones decided by one lawyer.</dd></div>
+    <div><dt>Hard negative</dt><dd>A synthetic near miss: an email built to look responsive and not be.</dd></div>
+    <div><dt>Roster</dt><dd>The list of Alpine planning-group members, roles and addresses, appended to request 25-3152 in some runs.</dd></div>
+    <div><dt>4b, 9b, 27b</dt><dd>Model size in billions of parameters. Larger is slower and usually better.</dd></div>
+    <div><dt>lp, json, jsonR</dt><dd>How the answer was taken: the first-token score, a generated JSON answer with the verdict first, or one with the reasoning first.</dd></div>
+    <div><dt>d3</dt><dd>The vLLM Semantic Router decision models, tuned to return a yes/no probability. They run locally.</dd></div>
+    <div><dt>Jev</dt><dd>TypeSafe's hosted decision model. The idea for this project came from it.</dd></div>
+    <div><dt>Q4_K_M, Q8_0</dt><dd>Compression levels for model weights: about 4 and 8 bits per weight.</dd></div>
+    <div><dt>Calibration</dt><dd>Whether a score of 0.7 means the email is responsive 70% of the time. Here it does not.</dd></div>
+  </dl>
+</section>
+
+<section id="s20" data-t="What to claim">
+  <div class="sec-head"><span class="bates">EXP-0020</span><h2>Next: one claim for the video</h2></div>
+  <div class="prose"><p>A 60 to 90 second video can carry one idea. These are three candidates the evidence supports. Each would use synthetic emails only, and each keeps the framing we agreed on: a promising local pre-screen, and no substitute for review.</p></div>
+  <div class="claims">
+    <div class="card"><h4>One word is enough</h4><p>The model was about to say yes or no. Reading its odds at that moment is 2.6 to 6.2 times faster than letting it write an answer, and it sorts the pile better.</p><p><b>Visual:</b> the token bars, then the dots sliding into place.</p><p><b>Caveat it must carry:</b> ranking is not the same as a safe cutoff, and this is one model family with these prompts.</p></div>
+    <div class="card"><h4>A desktop can clear most of the pile</h4><p>On a 496-pair test set, a model on one desktop kept 98% of the responsive ones and cleared 77 to 83% of the rest. Nothing left the building.</p><p><b>Visual:</b> the cutoff slider sweeping across the strip.</p><p><b>Caveat it must carry:</b> cutoff chosen after the fact, two requests, one reviewer's labels, 226 synthetic emails written by another model, and 43 to 48% against near misses.</p></div>
+    <div class="card"><h4>The model ranks. The lawyer sets the line.</h4><p>The ranking is very good. The hard part is where to cut, and the right cutoff differed between two requests. That part is still a judgment call.</p><p><b>Visual:</b> the two-request strip with one cutoff failing on the second.</p><p><b>Caveat it must carry:</b> none needed. The caveat is the claim.</p></div>
+  </div>
+  <p class="note">Tell me which one reads as true to you after going through the page, or give me a fourth. I'll write the video script and the post around it.</p>
+</section>
+
+<footer>
+  CPRA Logprob Experiment · private working page · built November 11, 2026 from <span class="mono">docs/findings-golden.md</span> and the scored runs. Interactive figures recompute from the 496 scored pairs. Figures quoted in text come from the findings documents.
+</footer>
+</main>
+</div>
+<div class="tip" id="tip" hidden></div>
+<script src="data.js"></script>
+<script src="app.js"></script>

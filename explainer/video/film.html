@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>One word is enough</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--paper:#0b1019;--surface:#141b28;--sunk:#0f1622;--ink:#e8edf4;--ink2:#b1bccd;--ink3:#8592a8;--rule:#263146;--rule2:#3a4760;
+ --pos:#3987e5;--neg:#d95926;--gold:#ffce40;--stamp:#f08a80;
+ --display:"Besley",Georgia,serif;--body:"Public Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#05080d;overflow:hidden}
+#stage{position:relative;width:1080px;height:1350px;overflow:hidden;background:var(--paper);color:var(--ink);font:400 26px/1.4 var(--body);-webkit-font-smoothing:antialiased;
+ background-image:radial-gradient(1200px 700px at 50% 18%,#131c2c 0%,#0b1019 70%)}
+.abs{position:absolute}
+.act{position:absolute;inset:0;display:none}
+#bar{position:absolute;left:0;top:0;height:5px;background:var(--gold);width:0}
+#hdr{position:absolute;left:60px;right:60px;top:54px;display:flex;justify-content:space-between;font:500 22px/1 var(--mono);letter-spacing:.13em;color:var(--ink3);text-transform:uppercase}
+#kick{color:var(--gold)}
+#hdr-rule{position:absolute;left:60px;right:60px;top:98px;height:1px;background:var(--rule)}
+#cap{position:absolute;left:60px;right:60px;top:1128px;height:180px;display:flex;align-items:center;justify-content:center;text-align:center;font:600 47px/1.25 var(--body);letter-spacing:-.005em;text-wrap:balance}
+#cap span{color:#5f6d85}
+#cap span.on{color:var(--ink)}
+.card{position:absolute;background:var(--surface);border:1px solid var(--rule);border-radius:18px}
+.lab{font:500 21px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.lab.g{color:var(--gold)}
+.pill{display:inline-block;font:500 18px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);border:1px solid var(--rule2);border-radius:99px;padding:7px 12px}
+.mono{font-family:var(--mono)} .disp{font-family:var(--display)}
+.tok{display:inline-block;font:500 32px/1 var(--mono);background:var(--sunk);border:1px solid var(--rule2);border-radius:10px;padding:10px 16px;color:var(--ink)}
+canvas{position:absolute}
+#scrub{position:fixed;left:0;right:0;bottom:0;padding:8px;background:#000c;color:#fff;font:14px monospace;display:none;gap:10px;align-items:center}
+</style></head>
+<body>
+<div id="stage">
+  <div id="acts"></div>
+  <div id="hdr"><span>Public records × local AI</span><span id="kick"></span></div>
+  <div id="hdr-rule"></div>
+  <div id="cap"></div>
+  <div id="bar"></div>
+</div>
+<div id="scrub"><button id="pp">play</button><input id="rng" type="range" min="0" max="1" step="0.001" value="0" style="flex:1"><span id="tt"></span></div>
+<script src="film_data.js"></script>
+<script src="timeline.js"></script>
+<script src="film_core.js"></script>
+<script src="film_a.js"></script>
+<script src="film_b.js"></script>
+<script src="film_c.js"></script>
+<script src="film_d.js"></script>
+<script>F.boot();</script>
+</body></html>

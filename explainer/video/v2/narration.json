@@ -1,0 +1,15 @@
+{
+ "voice_id": "8dEUmyPMdDdK91vboYih",
+ "voice_name": "Sawyer",
+ "model_id": "eleven_v4",
+ "segments": [
+  {"id": "s1", "text": "About 500 emails, and two real public records requests. Someone has to read every one. Unless a small AI model, on one desktop, sorts them first. This one set aside 77 percent of the non-responsive emails, and kept 98 percent of the responsive ones."},
+  {"id": "s2", "text": "Here's how. Ask one question: is this email responsive, yes or no? Before the model writes a word, it has already put odds on that word. Read the odds, and stop. That's the score."},
+  {"id": "s3", "text": "I tested three ways to ask. Read the odds. Use a decision model, built to answer only yes or no. Or let the model write out its answer and confidence. Written confidence collapses onto a few values. One model gave 43 responsive emails a flat zero."},
+  {"id": "s4", "text": "Here is every setup, by speed and by share cleared. Writing took at least two and a half times as long, and cleared less. The best decision model reached 83 percent, a gap too small for this test to call. The hosted model that inspired this was fastest, and cleared 64."},
+  {"id": "s5", "text": "Now the hard part. The real non-responsive emails were easy: this model cleared every one. The near misses, built to fool it, were not. Right subject, wrong dates. A keyword in another sense. It cleared fewer than half."},
+  {"id": "s6", "text": "Every request is different. One asked for all emails to or from members of a committee. The model doesn't know who is on it. Give it the roster, and it goes from 76 percent cleared to 93."},
+  {"id": "s7", "text": "Then the line itself. I set mine with the answers in hand. A new request has none. And the two requests wanted different lines. Use one request's line on the other, and it misses 14 of 143 responsive emails. Where the line goes is a legal judgment."},
+  {"id": "s8", "text": "Two requests, one desktop, one lawyer making the close calls. So: a promising first pass that keeps the records in the building. Not a replacement for review."}
+ ]
+}
