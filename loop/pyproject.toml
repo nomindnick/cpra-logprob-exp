@@ -1,0 +1,22 @@
+[project]
+name = "cpra-loop"
+version = "0.1.0"
+description = "Layer-looping side experiment: first-token yes/no scoring through PyTorch instead of Ollama"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "torch==2.14.1+rocm7.2",
+    "transformers>=5.23",
+    "accelerate",
+    "safetensors",
+    "numpy",
+    "triton-rocm>=3.8.0,<3.9.dev0; sys_platform == 'linux'",
+]
+
+[tool.uv.sources]
+torch = { index = "pytorch-rocm" }
+triton-rocm = { index = "pytorch-rocm" }
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm7.2"
+explicit = true

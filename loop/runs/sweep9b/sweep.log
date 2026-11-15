@@ -1,0 +1,99 @@
+== Qwen/Qwen3.5-9B: search on 24-409, 25 blocks; fixed in advance for 25-3152: ['12:16', '14:16']
+sweep9b/24-409/base_start: 32 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.0 min
+  sweep9b/24-409/base_start: AUROC 0.9655, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r0-4: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.1 min
+  sweep9b/24-409/r0-4: AUROC 0.8360, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r4-8: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.1 min
+  sweep9b/24-409/r4-8: AUROC 0.9553, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r8-12: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.0 min
+  sweep9b/24-409/r8-12: AUROC 0.9664, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r12-16: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.0 min
+  sweep9b/24-409/r12-16: AUROC 0.9816, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r16-20: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.0 min
+  sweep9b/24-409/r16-20: AUROC 0.9760, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r20-24: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.0 min
+  sweep9b/24-409/r20-24: AUROC 0.9672, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r24-28: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.0 min
+  sweep9b/24-409/r24-28: AUROC 0.9648, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r28-32: 36 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 10.0 min
+  sweep9b/24-409/r28-32: AUROC 0.9643, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r9-10: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.2 min
+  sweep9b/24-409/r9-10: AUROC 0.9559, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r11-12: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.1 min
+  sweep9b/24-409/r11-12: AUROC 0.8152, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r13-14: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.2 min
+  sweep9b/24-409/r13-14: AUROC 0.9629, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r15-16: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.1 min
+  sweep9b/24-409/r15-16: AUROC 0.9590, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r17-18: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.2 min
+  sweep9b/24-409/r17-18: AUROC 0.9744, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r19-20: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.1 min
+  sweep9b/24-409/r19-20: AUROC 0.9653, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r21-22: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.2 min
+  sweep9b/24-409/r21-22: AUROC 0.9644, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r23-24: 33 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.1 min
+  sweep9b/24-409/r23-24: AUROC 0.9661, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r4-12: 40 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 11.1 min
+  sweep9b/24-409/r4-12: AUROC 0.9427, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r8-16: 40 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 11.1 min
+  sweep9b/24-409/r8-16: AUROC 0.9601, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r12-20: 40 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 11.1 min
+  sweep9b/24-409/r12-20: AUROC 0.9685, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r16-24: 40 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 11.1 min
+  sweep9b/24-409/r16-24: AUROC 0.9690, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r20-28: 40 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 11.1 min
+  sweep9b/24-409/r20-28: AUROC 0.9664, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r10-12: 34 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.4 min
+  sweep9b/24-409/r10-12: AUROC 0.9435, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r14-16: 34 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.4 min
+  sweep9b/24-409/r14-16: AUROC 0.9758, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r18-20: 34 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.4 min
+  sweep9b/24-409/r18-20: AUROC 0.9691, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/r22-24: 34 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 9.4 min
+  sweep9b/24-409/r22-24: AUROC 0.9678, 0 of 247 pairs without a yes/no answer
+sweep9b/24-409/base_end: 32 layer passes (32 layers), 0 already scored, 247 to go
+  done: 247 pairs in 8.9 min
+  sweep9b/24-409/base_end: AUROC 0.9655, 0 of 247 pairs without a yes/no answer
+== validate on 25-3152: ['12:16', '14:16', '16:20']
+sweep9b/25-3152/base_start: 32 layer passes (32 layers), 0 already scored, 249 to go
+  done: 249 pairs in 9.6 min
+  sweep9b/25-3152/base_start: AUROC 0.9313, 0 of 249 pairs without a yes/no answer
+sweep9b/25-3152/r12-16: 36 layer passes (32 layers), 0 already scored, 249 to go
+  done: 249 pairs in 10.7 min
+  sweep9b/25-3152/r12-16: AUROC 0.9157, 0 of 249 pairs without a yes/no answer
+sweep9b/25-3152/r14-16: 34 layer passes (32 layers), 0 already scored, 249 to go
+  done: 249 pairs in 10.1 min
+  sweep9b/25-3152/r14-16: AUROC 0.9268, 0 of 249 pairs without a yes/no answer
+sweep9b/25-3152/r16-20: 36 layer passes (32 layers), 0 already scored, 249 to go
+  done: 249 pairs in 10.7 min
+  sweep9b/25-3152/r16-20: AUROC 0.9375, 0 of 249 pairs without a yes/no answer
+sweep9b/25-3152/base_end: 32 layer passes (32 layers), 0 already scored, 249 to go
+  done: 249 pairs in 9.5 min
+  sweep9b/25-3152/base_end: AUROC 0.9313, 0 of 249 pairs without a yes/no answer
+== sweep complete

@@ -41,6 +41,12 @@ the email files, so they need a local copy. The tracked `runs/*/scores.jsonl` fi
 carry scores without email text, apart from short phrases a model quoted in its
 written reasoning.
 
+## Layer looping (side experiment)
+
+`loop/` is a separate PyTorch harness that runs some of a stock model's layers twice and scores the
+golden set the same way. Result: a small gain on Qwen3.5-4B that did not replicate on Qwen3.5-9B, for 5 to
+12% more time. See [docs/findings-looping.md](docs/findings-looping.md).
+
 ## Explainer
 
 `explainer/` is the source of a private explainer page and of two cuts of a short

@@ -5,6 +5,7 @@ runs/*/scores.jsonl
 !runs/*_lat*/scores.jsonl
 !runs/golden_*/scores.jsonl
 runs/*.log
+loop/runs/*.log
 
 # python
 __pycache__/
